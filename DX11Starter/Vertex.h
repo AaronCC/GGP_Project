@@ -12,7 +12,5 @@ struct Vertex
 	DirectX::XMFLOAT3 Position;	    // The position of the vertex
 	//DirectX::XMFLOAT4 Color;        // The color of the vertex
 	DirectX::XMFLOAT3 Normal;		//The Normals
-	DirectX::XMFLOAT2 Uv;			//The UVs
-
-
+	DirectX::XMFLOAT2 UV;			//The UVs
 };

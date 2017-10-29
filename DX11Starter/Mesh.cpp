@@ -127,17 +127,17 @@ Mesh::Mesh(char* _filename, ID3D11Device* _ID3D11_Obj)
 			//    they need to be adusted
 			Vertex v1;
 			v1.Position = positions[i[0] - 1];
-			v1.Uv = uvs[i[1] - 1];
+			v1.UV = uvs[i[1] - 1];
 			v1.Normal = normals[i[2] - 1];
 
 			Vertex v2;
 			v2.Position = positions[i[3] - 1];
-			v2.Uv = uvs[i[4] - 1];
+			v2.UV = uvs[i[4] - 1];
 			v2.Normal = normals[i[5] - 1];
 
 			Vertex v3;
 			v3.Position = positions[i[6] - 1];
-			v3.Uv = uvs[i[7] - 1];
+			v3.UV = uvs[i[7] - 1];
 			v3.Normal = normals[i[8] - 1];
 
 			// The model is most likely in a right-handed space,
@@ -152,9 +152,9 @@ Mesh::Mesh(char* _filename, ID3D11Device* _ID3D11_Obj)
 			// 3D modeling packages use the bottom left as (0,0)
 
 			// Flip the UV's since they're probably "upside down"
-			v1.Uv.y = 1.0f - v1.Uv.y;
-			v2.Uv.y = 1.0f - v2.Uv.y;
-			v3.Uv.y = 1.0f - v3.Uv.y;
+			v1.UV.y = 1.0f - v1.UV.y;
+			v2.UV.y = 1.0f - v2.UV.y;
+			v3.UV.y = 1.0f - v3.UV.y;
 
 			// Flip Z (LH vs. RH)
 			v1.Position.z *= -1.0f;
@@ -182,11 +182,11 @@ Mesh::Mesh(char* _filename, ID3D11Device* _ID3D11_Obj)
 				// Make the last vertex
 				Vertex v4;
 				v4.Position = positions[i[9] - 1];
-				v4.Uv = uvs[i[10] - 1];
+				v4.UV = uvs[i[10] - 1];
 				v4.Normal = normals[i[11] - 1];
 
 				// Flip the UV, Z pos and normal
-				v4.Uv.y = 1.0f - v4.Uv.y;
+				v4.UV.y = 1.0f - v4.UV.y;
 				v4.Position.z *= -1.0f;
 				v4.Normal.z *= -1.0f;
 

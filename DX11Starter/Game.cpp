@@ -270,7 +270,7 @@ void Game::CreateBasicGeometry()
 	Shape1 = new Mesh(vertices, 3, indices, 3, device);
 	Shape2 = new Mesh(vertices2, 3, indices, 3, device);
 	Shape3 = new Mesh(vertices3, 3, indices, 3, device);
-	Shape4 = new Mesh("Assets/Models/helix.obj",device);
+	Shape4 = new Mesh("Assets/Models/helix.obj", device);
 
 	Entity1 = new Entity(Shape1, material);
 	Entity2 = new Entity(Shape4, material);

@@ -11,7 +11,6 @@
 #include "Light.h"
 #include "WICTextureLoader.h"
 
-
 class Game 
 	: public DXCore
 {
