@@ -102,7 +102,7 @@ void Game::Init()
 	Vertex verts[16] = { nada }; //vertex array null w/ length = lanecount*2
 	int inds[48] = {}; // ind array w/ length = lanecount*6
 
-	Level1->genLevel(device, inds, verts, 8, 3.0, 1, 5.0);
+	Level1->genLevel(device, inds, verts, 8, 10.0, 4, 10.0);
 
 	EntityNew = Level1->getEntity();
 

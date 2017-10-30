@@ -51,22 +51,22 @@ void Level::genLevel(ID3D11Device*	device,
 	for (int i = 0; i < (LANE_COUNT - 1) * 6; i += 6)
 	{
 		int x = i / 6;
-		inds[i] = x;
-		inds[i + 1] = x + 1;
-		inds[1 + 2] = x + 1 + LANE_COUNT;
+		inds[i]		= x + 1;
+		inds[i + 1] = x;
+		inds[i + 2] = x + 1 + LANE_COUNT;
 		inds[i + 3] = x + 1 + LANE_COUNT;
-		inds[i + 4] = x + LANE_COUNT;
-		inds[i + 5] = x;
+		inds[i + 4] = x;
+		inds[i + 5] = x + LANE_COUNT;
 	}
 
-	// Last face
-	int f = LANE_COUNT * 6 - 1;
-	inds[f - 5] = LANE_COUNT - 1;
-	inds[f - 4] = 0;
-	inds[f - 3] = LANE_COUNT;
-	inds[f - 2] = LANE_COUNT;
-	inds[f - 1] = LANE_COUNT * 2 - 1;
-	inds[f] = LANE_COUNT - 1;
+	// Last face - ccw
+	int f = LANE_COUNT * 6 - 1;		//f = end of index array
+	inds[f - 5] = 0;				//first index of last quad
+	inds[f - 4] = LANE_COUNT - 1;	//second
+	inds[f - 3] = LANE_COUNT;		//third
+	inds[f - 2] = LANE_COUNT;		//fourth
+	inds[f - 1] = LANE_COUNT - 1;	//fifth
+	inds[f] = LANE_COUNT * 2 - 1;	//sixth
 
 	// Calc Verts
 	for (int i = 0; i < LANE_COUNT * 2; i++)

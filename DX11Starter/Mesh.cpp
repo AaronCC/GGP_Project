@@ -31,7 +31,7 @@ Mesh::Mesh(Vertex* _vertArray, int _vertNum, int* _indArray, int _indNum, ID3D11
 	//    it to create the buffer.  The description is then useless.
 	D3D11_BUFFER_DESC ibd;
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(int) * _vertNum;         // 3 = number of indices in the buffer
+	ibd.ByteWidth = sizeof(int) * _indNum;         // 3 = number of indices in the buffer
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER; // Tells DirectX this is an index buffer
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;

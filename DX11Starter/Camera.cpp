@@ -5,7 +5,7 @@ using namespace DirectX;
 
 Camera::Camera()
 {
-	camPos = XMFLOAT3(0.0f, 0.0f, -5.0f);
+	camPos = XMFLOAT3(0.0f, 0.0f, -15.0f);
 	camDir = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	forward = XMFLOAT3(0.0f, 0.0f, 1.0f); //default forward vec
 	up = XMFLOAT3(0.0f, 1.0f, 0.0f); //default up vec
