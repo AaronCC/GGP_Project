@@ -65,6 +65,10 @@ Game::~Game()
 	delete Cam;
 	delete material;
 	delete material2;
+
+	delete Level1;
+	delete EntityNew;
+
 	checkerSRV->Release();
 	rainbowSRV->Release();
 	sampleState->Release();
@@ -96,9 +100,9 @@ void Game::Init()
 	//empty float3 to fill up empty array
 	XMFLOAT3 nada = { 0,0,0 };
 	Vertex verts[16] = { nada }; //vertex array null w/ length = lanecount*2
-	int inds[48] = {}; // ind array w/ length = lanecount*6 //49?
+	int inds[48] = {}; // ind array w/ length = lanecount*6
 
-	Level1->genLevel(device, inds, verts, 8, 10.0, 4, 10.0);
+	Level1->genLevel(device, inds, verts, 8, 3.0, 1, 5.0);
 
 	EntityNew = Level1->getEntity();
 
@@ -123,8 +127,8 @@ void Game::LoadShaders()
 	pixelShader->LoadShaderFile(L"PixelShader.cso");
 	
 	
-	/*HRESULT texresult = */CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.jpg", 0, &checkerSRV);
-	HRESULT texresult = CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow.png", 0, &rainbowSRV);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.jpg", 0, &checkerSRV);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow.png", 0, &rainbowSRV);
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -136,7 +140,7 @@ void Game::LoadShaders()
 
 	device->CreateSamplerState(&samplerDesc, &sampleState);
 
-	material = new Materials(pixelShader, vertexShader,checkerSRV, sampleState);
+	material = new Materials(pixelShader, vertexShader, checkerSRV, sampleState);
 	material2 = new Materials(pixelShader, vertexShader, rainbowSRV, sampleState);
 }
 
@@ -223,7 +227,7 @@ void Game::Update(float deltaTime, float totalTime)
 	//Entity2->SetRotation(0.00025f, 0.00025f, 0.0f); //RADIANS DUMBASS
 	Entity2->UpdateMatrix();
 
-	EntityNew->UpdateMatrix();
+	//EntityNew->UpdateMatrix();
 }
 
 // --------------------------------------------------------
@@ -255,9 +259,9 @@ void Game::Draw(float deltaTime, float totalTime)
 		sizeof(DirectionalLight));	//size of data to copy
 
 	pixelShader->CopyAllBufferData();
-	Entity1->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape1, sampleState);
-	Entity2->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape4, sampleState);
-	Entity3->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape4, sampleState);
+	//Entity1->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape1, sampleState);
+	//Entity2->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape4, sampleState);
+	//Entity3->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape4, sampleState);
 	EntityNew->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), EntityNew->mesh, sampleState);
 
 	// Present the back buffer to the user
@@ -294,8 +298,6 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
-
-	printf("mouseup \n");
 	Cam->SetRot(0,0); //stop mouse movement when the button is released
 
 

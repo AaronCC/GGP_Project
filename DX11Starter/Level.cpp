@@ -9,7 +9,9 @@ Level::Level(Materials* mat)
 
 Level::~Level()
 {
-
+	levelMesh->~Mesh();
+	levelEntity->~Entity();
+	//lanes.swap(0); //delete the lanes vector
 }
 
 void Level::genLevel(ID3D11Device*	device,
@@ -38,22 +40,14 @@ void Level::genLevel(ID3D11Device*	device,
 	// Calc far face
 	for(int n = 0; n < LANE_COUNT; n++)
 	{
-		XMFLOAT3 banana = { positions[n].x, positions[n].y, DEPTH };
-		positions.push_back(banana); // vector subscript out of range on last item? n = 7; positions.size = 15; banana is valid;
+		positions.push_back(XMFLOAT3{ positions[n].x, positions[n].y, DEPTH });
 	}
 
 	for (int p = 0; p < LANE_COUNT; p++)
 	{
 		normals.push_back(normals[p]);
 	}
-	//int j = 0;
-	//for each(XMFLOAT3 norm in normals)
-	//{
-	//	normals.push_back(normals[j]);
-	//	j++;
-	//}
 
-	// Calc inds
 	for (int i = 0; i < (LANE_COUNT - 1) * 6; i += 6)
 	{
 		int x = i / 6;
@@ -75,7 +69,7 @@ void Level::genLevel(ID3D11Device*	device,
 	inds[f] = LANE_COUNT - 1;
 
 	// Calc Verts
-	for (int i = 0; i < LANE_COUNT * 6; i++)
+	for (int i = 0; i < LANE_COUNT * 2; i++)
 	{
 		verts[i] = Vertex{
 			positions[i],
@@ -93,9 +87,10 @@ void Level::genLevel(ID3D11Device*	device,
 		else
 			mid = { (positions[i].x + positions[0].x) / 2.f,(positions[i].y + positions[0].y) / 2.f };
 
-		lanes.push_back(&Lane(mid, DEPTH));
+		lanes.push_back(Lane(mid, DEPTH));
 	}
 
 	// level mesh
-	levelEntity = &Entity(&Mesh(verts, LANE_COUNT * 2, inds, LANE_COUNT * 6, device), material);
+	levelMesh = new Mesh(verts, LANE_COUNT * 2, inds, LANE_COUNT * 6, device);
+	levelEntity = new Entity(levelMesh, material);
 }
