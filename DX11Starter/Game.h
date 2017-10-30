@@ -10,6 +10,7 @@
 #include "Vertex.h"
 #include "Light.h"
 #include "WICTextureLoader.h"
+#include "Level.h"
 
 class Game 
 	: public DXCore
@@ -56,8 +57,6 @@ private:
 	POINT prevMousePos;
 
 	Mesh* Shape1;
-	Mesh* Shape2;
-	Mesh* Shape3;
 	Mesh* Shape4;
 
 	Entity* Entity1;
@@ -77,5 +76,7 @@ private:
 
 	ID3D11SamplerState* sampleState;
 
+	Level* Level1;
+	Entity* EntityNew;
 };
 

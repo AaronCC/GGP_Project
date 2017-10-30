@@ -58,8 +58,6 @@ Game::~Game()
 	delete vertexShader;
 	delete pixelShader;
 	delete Shape1;
-	delete Shape2;
-	delete Shape3;
 	delete Shape4;
 	delete Entity1;
 	delete Entity2;
@@ -92,6 +90,17 @@ void Game::Init()
 	light2.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 1.0);
 	light2.DiffuseColor = XMFLOAT4(1, 0, 0, 1);
 	light2.Direction = XMFLOAT3(0, 0, 1);
+
+	Level1 = new Level(material);
+
+	//empty float3 to fill up empty array
+	XMFLOAT3 nada = { 0,0,0 };
+	Vertex verts[16] = { nada }; //vertex array null w/ length = lanecount*2
+	int inds[48] = {}; // ind array w/ length = lanecount*6 //49?
+
+	Level1->genLevel(device, inds, verts, 8, 10.0, 4, 10.0);
+
+	EntityNew = Level1->getEntity();
 
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
@@ -127,7 +136,7 @@ void Game::LoadShaders()
 
 	device->CreateSamplerState(&samplerDesc, &sampleState);
 
-	material = new Materials(pixelShader, vertexShader,checkerSRV,sampleState);
+	material = new Materials(pixelShader, vertexShader,checkerSRV, sampleState);
 	material2 = new Materials(pixelShader, vertexShader, rainbowSRV, sampleState);
 }
 
@@ -139,41 +148,6 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateMatrices()
 {
-	//// Set up world matrix
-	//// - In an actual game, each object will need one of these and they should
-	////    update when/if the object moves (every frame)
-	//// - You'll notice a "transpose" happening below, which is redundant for
-	////    an identity matrix.  This is just to show that HLSL expects a different
-	////    matrix (column major vs row major) than the DirectX Math library
-	//XMMATRIX W = XMMatrixIdentity();
-	//XMStoreFloat4x4(&worldMatrix, XMMatrixTranspose(W)); // Transpose for HLSL!
-
-	//// Create the View matrix
-	//// - In an actual game, recreate this matrix every time the camera 
-	////    moves (potentially every frame)
-	//// - We're using the LOOK TO function, which takes the position of the
-	////    camera and the direction vector along which to look (as well as "up")
-	//// - Another option is the LOOK AT function, to look towards a specific
-	////    point in 3D space
-	//XMVECTOR pos = XMVectorSet(0, 0, -5, 0);
-	//XMVECTOR dir = XMVectorSet(0, 0, 1, 0);
-	//XMVECTOR up = XMVectorSet(0, 1, 0, 0);
-	//XMMATRIX V = XMMatrixLookToLH(
-	//	pos,     // The position of the "camera"
-	//	dir,     // Direction the camera is looking
-	//	up);     // "Up" direction in 3D space (prevents roll)
-	//XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(V)); // Transpose for HLSL!
-
-	//// Create the Projection matrix
-	//// - This should match the window's aspect ratio, and also update anytime
-	////    the window resizes (which is already happening in OnResize() below)
-	//XMMATRIX P = XMMatrixPerspectiveFovLH(
-	//	0.25f * 3.1415926535f,		// Field of View Angle
-	//	(float)width / height,		// Aspect ratio
-	//	0.1f,						// Near clip plane distance
-	//	100.0f);					// Far clip plane distance
-	//XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
-
 	Cam->ProjectMat(width,height);
 }
 
@@ -199,20 +173,6 @@ void Game::CreateBasicGeometry()
 		{ XMFLOAT3(-1.5f, -1.0f, +5.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) },
 	};
 
-	Vertex vertices2[] =
-	{
-		{ XMFLOAT3(+1.0f, +1.5f, +7.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) },
-		{ XMFLOAT3(+2.5f, -0.5f, +7.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) },
-		{ XMFLOAT3(-0.5f, -0.5f, +7.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) },
-	};
-
-	Vertex vertices3[] =
-	{
-		{ XMFLOAT3(+2.0f, +2.0f, +0.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) },
-		{ XMFLOAT3(+3.5f, -0.0f, +0.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) },
-		{ XMFLOAT3(+0.5f, -0.0f, +0.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) },
-	};
-
 	// Set up the indices, which tell us which vertices to use and in which order
 	// - This is somewhat redundant for just 3 vertices (it's a simple example)
 	// - Indices are technically not required if the vertices are in the buffer 
@@ -220,56 +180,7 @@ void Game::CreateBasicGeometry()
 	// - But just to see how it's done...
 	int indices[] = { 0, 1, 2 };
 
-
-	//// Create the VERTEX BUFFER description -----------------------------------
-	//// - The description is created on the stack because we only need
-	////    it to create the buffer.  The description is then useless.
-	////D3D11_BUFFER_DESC vbd;
-	////vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	////vbd.ByteWidth = sizeof(Vertex) * 3;       // 3 = number of vertices in the buffer
-	////vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER; // Tells DirectX this is a vertex buffer
-	////vbd.CPUAccessFlags = 0;
-	////vbd.MiscFlags = 0;
-	////vbd.StructureByteStride = 0;
-	////OLD WAY
-
-	//// Create the proper struct to hold the initial vertex data
-	//// - This is how we put the initial data into the buffer
-	//D3D11_SUBRESOURCE_DATA initialVertexData;
-	//initialVertexData.pSysMem = vertices;
-
-	//// Actually create the buffer with the initial data
-	//// - Once we do this, we'll NEVER CHANGE THE BUFFER AGAIN
-	////device->CreateBuffer(&vbd, &initialVertexData, &vertexBuffer);
-	////OLD WAY
-
-
-
-	//// Create the INDEX BUFFER description ------------------------------------
-	//// - The description is created on the stack because we only need
-	////    it to create the buffer.  The description is then useless.
-	////D3D11_BUFFER_DESC ibd;
-	////ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	////ibd.ByteWidth = sizeof(int) * 3;         // 3 = number of indices in the buffer
-	////ibd.BindFlags = D3D11_BIND_INDEX_BUFFER; // Tells DirectX this is an index buffer
-	////ibd.CPUAccessFlags = 0;
-	////ibd.MiscFlags = 0;
-	////ibd.StructureByteStride = 0;
-	////OLD WAY
-
-	//// Create the proper struct to hold the initial index data
-	//// - This is how we put the initial data into the buffer
-	//D3D11_SUBRESOURCE_DATA initialIndexData;
-	//initialIndexData.pSysMem = indices;
-
-	//// Actually create the buffer with the initial data
-	//// - Once we do this, we'll NEVER CHANGE THE BUFFER AGAIN
-	//device->CreateBuffer(&ibd, &initialIndexData, &indexBuffer);
-	////OLD WAY
-
 	Shape1 = new Mesh(vertices, 3, indices, 3, device);
-	Shape2 = new Mesh(vertices2, 3, indices, 3, device);
-	Shape3 = new Mesh(vertices3, 3, indices, 3, device);
 	Shape4 = new Mesh("Assets/Models/helix.obj", device);
 
 	Entity1 = new Entity(Shape1, material);
@@ -285,17 +196,6 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::OnResize()
 {
-	//// Handle base-level DX resize stuff
-	//DXCore::OnResize();
-
-	//// Update our projection matrix since the window size changed
-	//XMMATRIX P = XMMatrixPerspectiveFovLH(
-	//	0.25f * 3.1415926535f,	// Field of View Angle
-	//	(float)width / height,	// Aspect ratio
-	//	0.1f,				  	// Near clip plane distance
-	//	100.0f);			  	// Far clip plane distance
-	//XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
-
 	Cam->ProjectMat(width, height);
 }
 
@@ -323,7 +223,7 @@ void Game::Update(float deltaTime, float totalTime)
 	//Entity2->SetRotation(0.00025f, 0.00025f, 0.0f); //RADIANS DUMBASS
 	Entity2->UpdateMatrix();
 
-
+	EntityNew->UpdateMatrix();
 }
 
 // --------------------------------------------------------
@@ -355,58 +255,10 @@ void Game::Draw(float deltaTime, float totalTime)
 		sizeof(DirectionalLight));	//size of data to copy
 
 	pixelShader->CopyAllBufferData();
-
-	//// Send data to shader variables
-	////  - Do this ONCE PER OBJECT you're drawing
-	////  - This is actually a complex process of copying data to a local buffer
-	////    and then copying that entire buffer to the GPU.  
-	////  - The "SimpleShader" class handles all of that for you.
-	//vertexShader->SetMatrix4x4("world", Entity1->GetWorldMat());
-	//vertexShader->SetMatrix4x4("view", viewMatrix);
-	//vertexShader->SetMatrix4x4("projection", projectionMatrix);
-
-	//// Once you've set all of the data you care to change for
-	//// the next draw call, you need to actually send it to the GPU
-	////  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
-	//vertexShader->CopyAllBufferData();
-
-	//// Set the vertex and pixel shaders to use for the next Draw() command
-	////  - These don't technically need to be set every frame...YET
-	////  - Once you start applying different shaders to different objects,
-	////    you'll need to swap the current shaders before each draw
-	//vertexShader->SetShader();
-	//pixelShader->SetShader();
-
-	//// Set buffers in the input assembler
-	////  - Do this ONCE PER OBJECT you're drawing, since each object might
-	////    have different geometry.
-
-	Entity1->Draw(/*vertexShader, pixelShader,*/ context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape1,sampleState);
-	Entity2->Draw(/*vertexShader, pixelShader,*/ context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape4,sampleState);
-	Entity3->Draw(/*vertexShader, pixelShader,*/ context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape4,sampleState);
-
-
-
-	////ONCE PER SHAPE
-	//UINT stride2 = sizeof(Vertex);
-	//UINT offset2 = 0;
-
-	//ID3D11Buffer* bBuff2 = Shape2->GetVertexBuffer();
-
-
-	//context->IASetVertexBuffers(0, 1, &bBuff2, &stride2, &offset2);
-	//context->IASetIndexBuffer(Shape2->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-
-	//// Finally do the actual drawing
-	////  - Do this ONCE PER OBJECT you intend to draw
-	////  - This will use all of the currently set DirectX "stuff" (shaders, buffers, etc)
-	////  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
-	////     vertices in the currently set VERTEX BUFFER
-	//context->DrawIndexed(
-	//	Shape2->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
-	//	0,     // Offset to the first index we want to use
-	//	0);    // Offset to add to each index when looking up vertices
-	////ONCE PER SHAPE
+	Entity1->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape1, sampleState);
+	Entity2->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape4, sampleState);
+	Entity3->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape4, sampleState);
+	EntityNew->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), EntityNew->mesh, sampleState);
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it

@@ -27,6 +27,8 @@ public:
 
 	Materials* material;
 
+	Mesh* mesh;
+
 private:
 	DirectX::XMFLOAT4X4 worldMat;
 	DirectX::XMFLOAT3 position;

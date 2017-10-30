@@ -12,6 +12,7 @@ Entity::Entity(Mesh* _mesh, Materials* _material)
 	scale = XMFLOAT3 (1,1,1);
 
 	material = _material;
+	mesh = _mesh;
 
 }
 

@@ -14,10 +14,10 @@ public:
 	~Level();
 
 	void genLevel(ID3D11Device*	device, int* inds, Vertex * verts, const int LANE_COUNT, const float LENGTH, const int MAX_VARIANCE, const float DEPTH);
-	
+	Entity* getEntity() { return levelEntity; };
 private:
 	std::vector<Lane*> lanes;
-	Entity* level;
+	Entity* levelEntity;
 	Materials* material;
 };
 

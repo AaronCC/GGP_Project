@@ -25,22 +25,33 @@ void Level::genLevel(ID3D11Device*	device,
 	for (int i = 0; i < LANE_COUNT; i++)
 	{
 		// Calc length from origin
-		float length = LENGTH + (static_cast <float> (std::rand() / static_cast <float> (MAX_VARIANCE)));
+		float length = LENGTH + (static_cast <float> (std::rand() % MAX_VARIANCE));
 		// calc vertex position
 		positions.push_back({ length * std::cos(angle), length * std::sin(angle), 0 });
 		// incriment angle value
-		angle += (2.f * XM_PI) / LANE_COUNT;
+		angle += (XM_2PI) / LANE_COUNT;
 		// calc normal
-		XMStoreFloat3(&normals[i], XMVector3Normalize(XMVECTOR{ -1 * positions[i].x, -1 * positions[i].y, 0.f }));
+		XMFLOAT3 normCatch;
+		XMStoreFloat3(&normCatch, XMVector3Normalize(XMVECTOR{ (-1 * positions[i].x), (-1 * positions[i].y), (0.f) }));
+		normals.push_back(normCatch);
 	}
 	// Calc far face
-	int i = 0;
-	for each(XMFLOAT3 pos in positions)
+	for(int n = 0; n < LANE_COUNT; n++)
 	{
-		positions.push_back(XMFLOAT3(pos.x, pos.y, DEPTH));
-		XMStoreFloat3(&normals[i], XMVector3Normalize(XMVECTOR{ -1 * pos.x, -1 * pos.y, 0.f }));
-		i++;
+		XMFLOAT3 banana = { positions[n].x, positions[n].y, DEPTH };
+		positions.push_back(banana); // vector subscript out of range on last item? n = 7; positions.size = 15; banana is valid;
 	}
+
+	for (int p = 0; p < LANE_COUNT; p++)
+	{
+		normals.push_back(normals[p]);
+	}
+	//int j = 0;
+	//for each(XMFLOAT3 norm in normals)
+	//{
+	//	normals.push_back(normals[j]);
+	//	j++;
+	//}
 
 	// Calc inds
 	for (int i = 0; i < (LANE_COUNT - 1) * 6; i += 6)
@@ -86,5 +97,5 @@ void Level::genLevel(ID3D11Device*	device,
 	}
 
 	// level mesh
-	level = &Entity(&Mesh(verts, LANE_COUNT * 2, inds, LANE_COUNT * 6, device), material);
+	levelEntity = &Entity(&Mesh(verts, LANE_COUNT * 2, inds, LANE_COUNT * 6, device), material);
 }
