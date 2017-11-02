@@ -9,15 +9,15 @@ Level::Level(Materials* mat)
 
 Level::~Level()
 {
-	levelMesh->~Mesh();
-	levelEntity->~Entity();
-	//lanes.swap(0); //delete the lanes vector
+	delete levelMesh;
+	delete levelEntity;
 }
 
 void Level::genLevel(ID3D11Device*	device,
 	int* inds, // int array (0..n) where n = 6 * number of lanes
 	Vertex* verts, // Vertex array (null) where length = 2 * number of lanes
-	const int LANE_COUNT, const float LENGTH, const int MAX_VARIANCE, const float DEPTH)
+	const int LANE_COUNT, const float LENGTH, const int MAX_VARIANCE, const float DEPTH, 
+	Materials* enemyMat, Materials* projMat)
 {
 	float angle = 0.f;
 
@@ -43,11 +43,13 @@ void Level::genLevel(ID3D11Device*	device,
 		positions.push_back(XMFLOAT3{ positions[n].x, positions[n].y, DEPTH });
 	}
 
+	//calc normals for back face
 	for (int p = 0; p < LANE_COUNT; p++)
 	{
 		normals.push_back(normals[p]);
 	}
 
+	//do math
 	for (int i = 0; i < (LANE_COUNT - 1) * 6; i += 6)
 	{
 		int x = i / 6;
@@ -59,7 +61,7 @@ void Level::genLevel(ID3D11Device*	device,
 		inds[i + 5] = x + LANE_COUNT;
 	}
 
-	// Last face - ccw
+	// do last face math
 	int f = LANE_COUNT * 6 - 1;		//f = end of index array
 	inds[f - 5] = 0;				//first index of last quad
 	inds[f - 4] = LANE_COUNT - 1;	//second
@@ -83,14 +85,23 @@ void Level::genLevel(ID3D11Device*	device,
 	{
 		XMFLOAT2 mid;
 		if (i == LANE_COUNT - 1)
-			mid = { (positions[i].x + positions[i + 1].x) / 2.f,(positions[i].y + positions[i + 1].y) / 2.f };
-		else
 			mid = { (positions[i].x + positions[0].x) / 2.f,(positions[i].y + positions[0].y) / 2.f };
+		else
+			mid = { (positions[i].x + positions[i + 1].x) / 2.f,(positions[i].y + positions[i + 1].y) / 2.f };
 
-		lanes.push_back(Lane(mid, DEPTH));
+		lanes.push_back(new Lane(mid, DEPTH, enemyMat, projMat, device));
 	}
 
 	// level mesh
 	levelMesh = new Mesh(verts, LANE_COUNT * 2, inds, LANE_COUNT * 6, device);
 	levelEntity = new Entity(levelMesh, material);
+}
+
+void Level::Update(float deltaTime, float totalTime)
+{
+	//update all the lanes
+	for each(Lane* lane in lanes)
+	{
+		lane->Update(deltaTime, totalTime);
+	}
 }

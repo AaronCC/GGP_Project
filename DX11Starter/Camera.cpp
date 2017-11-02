@@ -5,13 +5,12 @@ using namespace DirectX;
 
 Camera::Camera()
 {
-	camPos = XMFLOAT3(0.0f, 0.0f, -15.0f);
+	camPos = XMFLOAT3(0.0f, 0.0f, -40.0f);
 	camDir = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	forward = XMFLOAT3(0.0f, 0.0f, 1.0f); //default forward vec
 	up = XMFLOAT3(0.0f, 1.0f, 0.0f); //default up vec
 	right = XMFLOAT3(1.0f, 0.0f, 0.0f);//default right vec
 	u = XMFLOAT3(0.0f, 1.0f, 0.0f);//default up vec UNCHANGED
-
 
 	xRot = 0;
 	yRot = 0;
@@ -40,12 +39,12 @@ void Camera::Update(float deltaTime)
 	XMVECTOR vecU = XMLoadFloat3(&u);//doesn't change
 	
 	//Keyboard Input
-	if (GetAsyncKeyState('W') & 0x8000) { vecCamPos += (vecCamDir * 10.1f *  deltaTime); }
-	if (GetAsyncKeyState('S') & 0x8000) { vecCamPos += (vecCamDir * -10.1f *  deltaTime); }
+	//if (GetAsyncKeyState('W') & 0x8000) { vecCamPos += (vecCamDir * 10.1f *  deltaTime); }
+	/*if (GetAsyncKeyState('S') & 0x8000) { vecCamPos += (vecCamDir * -10.1f *  deltaTime); }
 	if (GetAsyncKeyState('D') & 0x8000) { vecCamPos += (vecRight * 10.1f *  deltaTime); }
 	if (GetAsyncKeyState('A') & 0x8000) { vecCamPos += (vecRight * -10.1f *  deltaTime); }
 	if (GetAsyncKeyState('E') & 0x8000) { vecCamPos += (vecUp * 10.1f *  deltaTime); }
-	if (GetAsyncKeyState('Q') & 0x8000) { vecCamPos += (vecUp * -10.1f *  deltaTime); }
+	if (GetAsyncKeyState('Q') & 0x8000) { vecCamPos += (vecUp * -10.1f *  deltaTime); }*/
 	
 
 	//Final Sendoff
@@ -74,7 +73,7 @@ void Camera::ProjectMat(unsigned int _w, unsigned int _h)
 		0.25f * 3.1415926535f,		// Field of View Angle
 		(float)_w / _h,		// Aspect ratio
 		0.1f,						// Near clip plane distance
-		100.0f);					// Far clip plane distance
+		200.0f);					// Far clip plane distance
 	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
 }
 

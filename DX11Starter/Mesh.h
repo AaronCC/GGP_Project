@@ -21,8 +21,8 @@ public:
 	int GetIndexCount();
 
 private:
-	ID3D11Buffer* vertBuf; //vertex buffer
-	ID3D11Buffer* dexBuf; //index buffer
-	int indices; //number of indicies in index buffer (dexBuf)
+	ID3D11Buffer* vertexBuffer; //vertex buffer
+	ID3D11Buffer* indexBuffer; //index buffer
+	int numIndices; //number of indicies in index buffer (dexBuf)
 };
 

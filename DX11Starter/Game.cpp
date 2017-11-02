@@ -15,8 +15,8 @@ Game::Game(HINSTANCE hInstance)
 	: DXCore(
 		hInstance,		   // The application's handle
 		"DirectX Game",	   // Text for the window's title bar
-		1280,			   // Width of the window's client area
-		720,			   // Height of the window's client area
+		1000,			   // Width of the window's client area
+		1000,			   // Height of the window's client area
 		true)			   // Show extra stats (fps) in title bar?
 {
 	// Initialize fields
@@ -26,10 +26,6 @@ Game::Game(HINSTANCE hInstance)
 	pixelShader = 0;
 
 	material = 0;
-
-	Entity1 = 0;
-	Entity2 = 0;
-	Entity3 = 0;
 
 	Cam = new Camera();
 
@@ -57,17 +53,12 @@ Game::~Game()
 	// will clean up their own internal DirectX stuff
 	delete vertexShader;
 	delete pixelShader;
-	delete Shape1;
-	delete Shape4;
-	delete Entity1;
-	delete Entity2;
-	delete Entity3;
 	delete Cam;
 	delete material;
 	delete material2;
 
-	delete Level1;
-	delete EntityNew;
+	//Level1->~Level();
+	delete level;
 
 	checkerSRV->Release();
 	rainbowSRV->Release();
@@ -85,26 +76,29 @@ void Game::Init()
 	//  - You'll be expanding and/or replacing these later
 	LoadShaders();
 	CreateMatrices();
-	CreateBasicGeometry();
+	//CreateBasicGeometry(); //deprecated
 
 	light.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 1.0);
-	light.DiffuseColor = XMFLOAT4(0, 0, 1, 1);
+	light.DiffuseColor = XMFLOAT4(1, 1, 1, 1);
 	light.Direction = XMFLOAT3(1, -1, 0);
 
 	light2.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 1.0);
 	light2.DiffuseColor = XMFLOAT4(1, 0, 0, 1);
 	light2.Direction = XMFLOAT3(0, 0, 1);
 
-	Level1 = new Level(material);
+	//create the level
+	level = new Level(material);
 
-	//empty float3 to fill up empty array
-	XMFLOAT3 nada = { 0,0,0 };
-	Vertex verts[16] = { nada }; //vertex array null w/ length = lanecount*2
-	int inds[48] = {}; // ind array w/ length = lanecount*6
+	//set the level variables
+	const int LANES = 10;
+	Vertex verts[LANES * 2] = { }; //vertex array null w/ length = lanecount*2
+	int inds[LANES * 6] = {}; // ind array w/ length = lanecount*6
 
-	Level1->genLevel(device, inds, verts, 8, 10.0, 4, 10.0);
+	//generate the level
+	level->genLevel(device, inds, verts, LANES, 10.0, 6, 75.0, material, material2);
 
-	EntityNew = Level1->getEntity();
+	// Create Player
+	this->player = new Player(level, material2, device);
 
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
@@ -157,40 +151,10 @@ void Game::CreateMatrices()
 
 
 // --------------------------------------------------------
-// Creates the geometry we're going to draw - a single triangle for now
+// Creates the geometry we're going to draw - deprecated
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
-	// Create some temporary variables to represent colors
-	// - Not necessary, just makes things more readable
-	XMFLOAT4 red = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-
-	// Set up the vertices of the triangle we would like to draw
-	// - We're going to copy this array, exactly as it exists in memory
-	//    over to a DirectX-controlled data structure (the vertex buffer)
-	Vertex vertices[] =
-	{
-		{ XMFLOAT3(+0.0f, +1.0f, +5.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) },
-		{ XMFLOAT3(+1.5f, -1.0f, +5.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) },
-		{ XMFLOAT3(-1.5f, -1.0f, +5.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) },
-	};
-
-	// Set up the indices, which tell us which vertices to use and in which order
-	// - This is somewhat redundant for just 3 vertices (it's a simple example)
-	// - Indices are technically not required if the vertices are in the buffer 
-	//    in the correct order and each one will be used exactly once
-	// - But just to see how it's done...
-	int indices[] = { 0, 1, 2 };
-
-	Shape1 = new Mesh(vertices, 3, indices, 3, device);
-	Shape4 = new Mesh("Assets/Models/helix.obj", device);
-
-	Entity1 = new Entity(Shape1, material);
-	Entity2 = new Entity(Shape4, material);
-	Entity2->SetTranslation(4, 0, 4);
-	Entity3 = new Entity(Shape4, material2);
 }
 
 
@@ -219,15 +183,9 @@ void Game::Update(float deltaTime, float totalTime)
 	
 	Cam->Update(deltaTime);
 
-	//edit shape1 / entity1
-	//Entity1->SetScale(1.0f, 1.0f * sinTime, 1.0f);
-	//Entity1->SetTranslation(0.0f, 0.0f, 0.0001f);
-	Entity1->UpdateMatrix();
-
-	//Entity2->SetRotation(0.00025f, 0.00025f, 0.0f); //RADIANS DUMBASS
-	Entity2->UpdateMatrix();
-
-	//EntityNew->UpdateMatrix();
+	//update game objects
+	level->Update(deltaTime, totalTime);
+	player->Update();
 }
 
 // --------------------------------------------------------
@@ -259,11 +217,35 @@ void Game::Draw(float deltaTime, float totalTime)
 		sizeof(DirectionalLight));	//size of data to copy
 
 	pixelShader->CopyAllBufferData();
-	//Entity1->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape1, sampleState);
-	//Entity2->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape4, sampleState);
-	//Entity3->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), Shape4, sampleState);
-	EntityNew->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), EntityNew->mesh, sampleState);
 
+	//get vector of lanes
+	std::vector<Lane*>* lanes = level->getLanes();
+
+	//loop through lanes
+	for each(Lane* lane in *lanes)
+	{
+		//draw each enemy
+		for each(Enemy* enemy in *lane->getEnemies())
+		{
+			Entity* enemyEntity = enemy->getEntity();
+			enemyEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), enemyEntity->mesh, sampleState);
+		}
+		//draw each projectile
+		for each(Projectile* proj in *lane->getProjectiles())
+		{
+			Entity* projEntity = proj->getEntity();
+			projEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), projEntity->mesh, sampleState);
+		}
+	}
+	
+	//draw the level
+	Entity* levelEntity = level->getEntity();
+	levelEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), levelEntity->mesh, sampleState);
+
+	//draw the player
+	Entity* playerEntity = player->getEntity();
+	playerEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntity->mesh, sampleState);
+	
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
 	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)

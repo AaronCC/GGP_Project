@@ -11,6 +11,7 @@
 #include "Light.h"
 #include "WICTextureLoader.h"
 #include "Level.h"
+#include "Player.h"
 
 class Game 
 	: public DXCore
@@ -56,17 +57,12 @@ private:
 	// determining how far the mouse moved in a single frame.
 	POINT prevMousePos;
 
-	Mesh* Shape1;
-	Mesh* Shape4;
-
-	Entity* Entity1;
-	Entity* Entity2;
-	Entity* Entity3;
+	Player* player;
 
 	Camera* Cam;
 
-	Materials* material;
-	Materials* material2;
+	Materials* material; //checker
+	Materials* material2; //rainbow
 
 	DirectionalLight light;
 	DirectionalLight light2;
@@ -76,7 +72,6 @@ private:
 
 	ID3D11SamplerState* sampleState;
 
-	Level* Level1;
-	Entity* EntityNew;
+	Level* level;
 };
 

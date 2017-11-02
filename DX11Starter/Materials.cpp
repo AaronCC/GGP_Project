@@ -1,7 +1,5 @@
 #include "Materials.h"
 
-
-
 Materials::Materials(SimplePixelShader* _pix, SimpleVertexShader* _vert, ID3D11ShaderResourceView* _SRV,
 	ID3D11SamplerState* _sample)
 {
@@ -9,7 +7,6 @@ Materials::Materials(SimplePixelShader* _pix, SimpleVertexShader* _vert, ID3D11S
 	vertShade = _vert;
 	SRV = _SRV;
 	sampleState = _sample;
-
 }
 
 

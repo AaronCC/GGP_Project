@@ -26,7 +26,6 @@ public:
 		Mesh* _shape, ID3D11SamplerState* _sample);
 
 	Materials* material;
-
 	Mesh* mesh;
 
 private:
@@ -34,8 +33,5 @@ private:
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 rotation;
 	DirectX::XMFLOAT3 scale;
-
-	
-
 };
 

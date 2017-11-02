@@ -43,7 +43,7 @@ DirectX::XMFLOAT3 Entity::GetScale()
 
 void Entity::SetTranslation(float _x, float _y, float _z)
 {
-	position = XMFLOAT3(position.x + _x, position.y + _y, position.z + _z);
+	position = XMFLOAT3(_x,_y,_z);
 }
 
 void Entity::SetRotation(float _x, float _y, float _z)
@@ -96,7 +96,6 @@ void Entity::Draw(/*SimpleVertexShader* _vertShade, SimplePixelShader* _pixShade
 	UINT offset = 0;
 
 	ID3D11Buffer* buff = _shape->GetVertexBuffer();
-
 
 	_context->IASetVertexBuffers(0, 1, &buff, &stride, &offset);
 	_context->IASetIndexBuffer(_shape->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
