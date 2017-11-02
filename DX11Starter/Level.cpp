@@ -27,6 +27,8 @@ void Level::genLevel(ID3D11Device*	device,
 
 	std::vector<XMFLOAT3> positions;
 	std::vector<XMFLOAT3> normals;
+	std::vector<XMFLOAT2> uvs;
+	bool uv = false; // 0 or 1
 	// Calc near face
 	for (int i = 0; i < LANE_COUNT; i++)
 	{
@@ -40,6 +42,8 @@ void Level::genLevel(ID3D11Device*	device,
 		XMFLOAT3 normCatch;
 		XMStoreFloat3(&normCatch, XMVector3Normalize(XMVECTOR{ (-1 * positions[i].x), (-1 * positions[i].y), (0.f) }));
 		normals.push_back(normCatch);
+		uvs.push_back(XMFLOAT2{ (float)uv,0.f });
+		uv = !uv;
 	}
 	// Calc far face
 	for(int n = 0; n < LANE_COUNT; n++)
@@ -47,10 +51,11 @@ void Level::genLevel(ID3D11Device*	device,
 		positions.push_back(XMFLOAT3{ positions[n].x, positions[n].y, DEPTH });
 	}
 
-	//calc normals for back face
+	//calc normals and uvs for back face
 	for (int p = 0; p < LANE_COUNT; p++)
 	{
 		normals.push_back(normals[p]);
+		uvs.push_back(XMFLOAT2{ uvs[p].x,1.f });
 	}
 
 	//do math
@@ -80,7 +85,7 @@ void Level::genLevel(ID3D11Device*	device,
 		verts[i] = Vertex{
 			positions[i],
 			normals[i],
-			XMFLOAT2{0,0}
+			uvs[i]
 		};
 	}
 
