@@ -1,4 +1,5 @@
 #include "Level.h"
+#include "time.h"
 
 using namespace DirectX;
 
@@ -11,6 +12,8 @@ Level::~Level()
 {
 	delete levelMesh;
 	delete levelEntity;
+	for each(Lane* lane in lanes)
+		delete lane;
 }
 
 void Level::genLevel(ID3D11Device*	device,
@@ -19,6 +22,7 @@ void Level::genLevel(ID3D11Device*	device,
 	const int LANE_COUNT, const float LENGTH, const int MAX_VARIANCE, const float DEPTH, 
 	Materials* enemyMat, Materials* projMat)
 {
+	srand(time(NULL));
 	float angle = 0.f;
 
 	std::vector<XMFLOAT3> positions;

@@ -59,6 +59,7 @@ Game::~Game()
 
 	//Level1->~Level();
 	delete level;
+	delete player;
 
 	checkerSRV->Release();
 	rainbowSRV->Release();
@@ -95,7 +96,7 @@ void Game::Init()
 	int inds[LANES * 6] = {}; // ind array w/ length = lanecount*6
 
 	//generate the level
-	level->genLevel(device, inds, verts, LANES, 10.0, 6, 75.0, material, material2);
+	level->genLevel(device, inds, verts, LANES, 8.0, 8, 75.0, material, material2);
 
 	// Create Player
 	this->player = new Player(level, material2, device);

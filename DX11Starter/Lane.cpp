@@ -13,6 +13,10 @@ Lane::Lane(XMFLOAT2 pos, float depth, Materials * enemyMat, Materials * projMat,
 
 Lane::~Lane()
 {
+	for each (Enemy* enemy in enemies)
+		delete enemy;
+	for each (Projectile* proj in projs)
+		delete proj;
 }
 
 void Lane::SpawnEnemy()
@@ -70,11 +74,15 @@ void Lane::Update(float deltaTime, float totalTime)
 	Projectile* proj = nullptr;
 	if (projs.size() > 0) {
 		proj = projs[0];
-		if (proj->getDepth() > this->depth) { projs.erase(projs.begin()); }
+		if (proj->getDepth() > this->depth) { projs.erase(projs.begin());
+		delete proj;
+		}
 	}
 	if (enemies.size() > 0) {
 		enemy = enemies[0];
-		if (enemy->getDepth() < 0) { enemies.erase(enemies.begin()); }
+		if (enemy->getDepth() < 0) { enemies.erase(enemies.begin());
+		delete enemy;
+		}
 	}
 
 	//bargain bin collision
@@ -84,6 +92,8 @@ void Lane::Update(float deltaTime, float totalTime)
 		{
 			projs.erase(projs.begin());
 			enemies.erase(enemies.begin());
+			delete proj;
+			delete enemy;
 		}
 	}
 
