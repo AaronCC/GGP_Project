@@ -25,8 +25,6 @@ Game::Game(HINSTANCE hInstance)
 	vertexShader = 0;
 	pixelShader = 0;
 
-	material = 0;
-
 	Cam = new Camera();
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -54,8 +52,8 @@ Game::~Game()
 	delete vertexShader;
 	delete pixelShader;
 	delete Cam;
-	delete material;
-	delete material2;
+	delete checker_mat;
+	delete rainbow_mat;
 
 	//Level1->~Level();
 	delete level;
@@ -79,27 +77,38 @@ void Game::Init()
 	CreateMatrices();
 	//CreateBasicGeometry(); //deprecated
 
-	light.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 1.0);
-	light.DiffuseColor = XMFLOAT4(1, 1, 1, 1);
+	light.AmbientColor = XMFLOAT4(0.0, 0.0, 0.0, 1.0);
+	light.DiffuseColor = XMFLOAT4(1, 0, 0, 1);
 	light.Direction = XMFLOAT3(1, -1, 0);
 
-	light2.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 1.0);
+	light2.AmbientColor = XMFLOAT4(0.0, 0.0, 0.0, 1.0);
 	light2.DiffuseColor = XMFLOAT4(1, 0, 0, 1);
-	light2.Direction = XMFLOAT3(0, 0, 1);
+	light2.Direction = XMFLOAT3(0.5, 0, 1);
+
+	pointLight1.PL_Position = XMFLOAT3(0,0,20); //put the light on the origin for now
+	pointLight1.PL_Color = XMFLOAT4(0,1,1,1);
 
 	//create the level
-	level = new Level(material);
+	level = new Level(checker_mat);
 
 	//set the level variables
 	const int LANES = 10;
-	Vertex verts[LANES * 2] = { }; //vertex array null w/ length = lanecount*2
+	Vertex verts[LANES * 2] = {}; //vertex array null w/ length = lanecount*2
 	int inds[LANES * 6] = {}; // ind array w/ length = lanecount*6
 
 	//generate the level
-	level->genLevel(device, inds, verts, LANES, 8.0, 8, 75.0, material, material2);
+	level->genLevel(device,		// device
+					inds,		// array of indices
+					verts,		// vertex of verts
+					LANES,		// number of lanes
+					8.0,		// starting distance of vertex to origin
+					8,			// max variance
+					75.0,		// depth of level
+					checker_mat,	// level & enemy material
+					rainbow_mat);	// projectile material
 
 	// Create Player
-	this->player = new Player(level, material2, device);
+	this->player = new Player(level, rainbow_mat, device);
 
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
@@ -122,7 +131,7 @@ void Game::LoadShaders()
 	pixelShader->LoadShaderFile(L"PixelShader.cso");
 	
 	
-	CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.jpg", 0, &checkerSRV);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.png", 0, &checkerSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow.png", 0, &rainbowSRV);
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
@@ -135,8 +144,8 @@ void Game::LoadShaders()
 
 	device->CreateSamplerState(&samplerDesc, &sampleState);
 
-	material = new Materials(pixelShader, vertexShader, checkerSRV, sampleState);
-	material2 = new Materials(pixelShader, vertexShader, rainbowSRV, sampleState);
+	checker_mat = new Materials(pixelShader, vertexShader, checkerSRV, sampleState);
+	rainbow_mat = new Materials(pixelShader, vertexShader, rainbowSRV, sampleState);
 }
 
 
@@ -216,6 +225,18 @@ void Game::Draw(float deltaTime, float totalTime)
 		"light2",	//Name of the (eventual) variable in the shader 
 		&light2,		//address of the data to copy
 		sizeof(DirectionalLight));	//size of data to copy
+
+	//pass point light to the pixel shader
+	pixelShader->SetData(
+		"pointLight1",
+		&pointLight1,
+		sizeof(PointLight));
+
+	//pass the cameras position to the camera
+	pixelShader->SetData(
+		"CameraPosition",
+		&Cam->camPos,
+		sizeof(XMFLOAT3));
 
 	pixelShader->CopyAllBufferData();
 

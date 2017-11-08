@@ -61,11 +61,14 @@ private:
 
 	Camera* Cam;
 
-	Materials* material; //checker
-	Materials* material2; //rainbow
+	Materials* checker_mat; //checker
+	Materials* rainbow_mat; //rainbow
 
 	DirectionalLight light;
 	DirectionalLight light2;
+
+	PointLight pointLight1;
+
 
 	ID3D11ShaderResourceView* checkerSRV;
 	ID3D11ShaderResourceView* rainbowSRV;

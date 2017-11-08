@@ -1,7 +1,9 @@
-﻿  Game.cpp
+﻿  compilation object save succeeded; see Z:\IGMProfile\Desktop\GGP_Repo\GGP_Project\x64\Debug\PixelShader.cso
+  Game.cpp
 z:\igmprofile\desktop\ggp_repo\ggp_project\dx11starter\level.h(19): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-z:\igmprofile\desktop\ggp_repo\ggp_project\dx11starter\game.cpp(82): warning C4305: 'argument': truncation from 'double' to 'float'
-z:\igmprofile\desktop\ggp_repo\ggp_project\dx11starter\game.cpp(86): warning C4305: 'argument': truncation from 'double' to 'float'
-z:\igmprofile\desktop\ggp_repo\ggp_project\dx11starter\game.cpp(302): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+z:\igmprofile\desktop\ggp_repo\ggp_project\dx11starter\game.cpp(323): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  Main.cpp
   DX11Starter.vcxproj -> Z:\IGMProfile\Desktop\GGP_Repo\GGP_Project\x64\Debug\DX11Starter.exe
   DX11Starter.vcxproj -> Z:\IGMProfile\Desktop\GGP_Repo\GGP_Project\x64\Debug\DX11Starter.pdb (Partial PDB)
