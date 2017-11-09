@@ -76,5 +76,14 @@ private:
 	ID3D11SamplerState* sampleState;
 
 	Level* level;
+
+	// Post process stuff
+	//render trget view - draw to this
+	ID3D11RenderTargetView* ppRTV;
+	//shader rexource view - draw from this
+	ID3D11ShaderResourceView* ppSRV;
+	//vertex and pixel shader
+	SimpleVertexShader* ppVS;
+	SimplePixelShader* ppPS;
 };
 

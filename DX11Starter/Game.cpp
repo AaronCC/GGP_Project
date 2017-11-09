@@ -62,6 +62,12 @@ Game::~Game()
 	checkerSRV->Release();
 	rainbowSRV->Release();
 	sampleState->Release();
+
+	//clean up post process stuff
+	ppSRV->Release();
+	ppRTV->Release();
+	delete ppPS;
+	delete ppVS;
 }
 
 // --------------------------------------------------------
@@ -86,7 +92,7 @@ void Game::Init()
 	light2.Direction = XMFLOAT3(0.5, 0, 1);
 
 	pointLight1.PL_Position = XMFLOAT3(0,0,20); //put the light on the origin for now
-	pointLight1.PL_Color = XMFLOAT4(0,1,1,1);
+	pointLight1.PL_Color = XMFLOAT4(1,1,1,1);
 
 	//create the level
 	level = new Level(checker_mat);
@@ -130,6 +136,12 @@ void Game::LoadShaders()
 	pixelShader = new SimplePixelShader(device, context);
 	pixelShader->LoadShaderFile(L"PixelShader.cso");
 	
+	// Post processing shaders
+	ppVS = new SimpleVertexShader(device, context);
+	ppVS->LoadShaderFile(L"PP_VS.cso");
+
+	ppPS = new SimplePixelShader(device, context);
+	ppPS->LoadShaderFile(L"PP_PS.cso");
 	
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.png", 0, &checkerSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow.png", 0, &rainbowSRV);
@@ -146,6 +158,44 @@ void Game::LoadShaders()
 
 	checker_mat = new Materials(pixelShader, vertexShader, checkerSRV, sampleState);
 	rainbow_mat = new Materials(pixelShader, vertexShader, rainbowSRV, sampleState);
+
+	// set up post processing resources
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = width;
+	textureDesc.Height = height;
+	textureDesc.ArraySize = 1;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.MipLevels = 1;
+	textureDesc.MiscFlags = 0;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	//the texture to render to
+	ID3D11Texture2D* ppTexture;
+	device->CreateTexture2D(&textureDesc, 0, &ppTexture);
+
+	// Create the Render Target View
+	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.Format = textureDesc.Format;
+	rtvDesc.Texture2D.MipSlice = 0;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
+	device->CreateRenderTargetView(ppTexture, &rtvDesc, &ppRTV);
+
+	// Create the Shader Resource View
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = textureDesc.Format;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+
+	device->CreateShaderResourceView(ppTexture, &srvDesc, &ppSRV);
+
+	//release the texture because it is now useless
+	ppTexture->Release();
 }
 
 
@@ -205,6 +255,10 @@ void Game::Draw(float deltaTime, float totalTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+
+	//post processing - swap render target to texture2d
+	context->OMSetRenderTargets(1, &ppRTV, depthStencilView);
+
 
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
@@ -268,6 +322,39 @@ void Game::Draw(float deltaTime, float totalTime)
 	Entity* playerEntity = player->getEntity();
 	playerEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntity->mesh, sampleState);
 	
+	//post processing
+	//set render target back to backbuffer + clear it
+	context->OMSetRenderTargets(1, &backBufferRTV, 0);
+	context->ClearRenderTargetView(backBufferRTV, color);
+
+	//draw with the post process shaders
+	ppVS->SetShader();
+	ppPS->SetShader();
+
+	//send in extra data to pixel shader here
+	//set up for blur right now
+	//ppPS->SetFloat("pixelWidth", 1.0f / width);
+	//ppPS->SetFloat("pixelHeight", 1.0f / height);
+	//ppPS->SetInt("blurAmount", 2);
+	ppPS->CopyAllBufferData();
+
+	ppPS->SetShaderResourceView("Pixels", ppSRV);
+	ppPS->SetSamplerState("Sampler", sampleState);
+
+	//disable vertex and index buffer
+	ID3D11Buffer* nullBuffer = 0;
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	context->IASetVertexBuffers(0, 1, &nullBuffer, &stride, &offset);
+	context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+
+	//draw 3 verts - the triangle that will cover the screen
+	context->Draw(3, 0);
+
+	//turn off all srv's to avoid input/output clashing
+	ID3D11ShaderResourceView* nullSRVs[16] = {};
+	context->PSSetShaderResources(0, 16, nullSRVs);
+
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
 	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
