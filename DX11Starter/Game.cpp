@@ -54,6 +54,7 @@ Game::~Game()
 	delete Cam;
 	delete checker_mat;
 	delete rainbow_mat;
+	delete level_mat;
 
 	//Level1->~Level();
 	delete level;
@@ -61,6 +62,7 @@ Game::~Game()
 
 	checkerSRV->Release();
 	rainbowSRV->Release();
+	levelSRV->Release();
 	sampleState->Release();
 
 	//clean up post process stuff
@@ -95,10 +97,10 @@ void Game::Init()
 	pointLight1.PL_Color = XMFLOAT4(1,1,1,1);
 
 	//create the level
-	level = new Level(checker_mat);
+	level = new Level(level_mat);
 
 	//set the level variables
-	const int LANES = 10;
+	const int LANES = 10; // the uv mapping does not like odd numbers
 	Vertex verts[LANES * 2] = {}; //vertex array null w/ length = lanecount*2
 	int inds[LANES * 6] = {}; // ind array w/ length = lanecount*6
 
@@ -110,11 +112,14 @@ void Game::Init()
 					8.0,		// starting distance of vertex to origin
 					8,			// max variance
 					75.0,		// depth of level
-					checker_mat,	// level & enemy material
+					checker_mat,	// enemy material
 					rainbow_mat);	// projectile material
 
 	// Create Player
 	this->player = new Player(level, rainbow_mat, device);
+
+	//create backdrop
+	//backDrop = new Entity();
 
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
@@ -145,6 +150,7 @@ void Game::LoadShaders()
 	
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.png", 0, &checkerSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow.png", 0, &rainbowSRV);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/level.png", 0, &levelSRV);
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -158,6 +164,7 @@ void Game::LoadShaders()
 
 	checker_mat = new Materials(pixelShader, vertexShader, checkerSRV, sampleState);
 	rainbow_mat = new Materials(pixelShader, vertexShader, rainbowSRV, sampleState);
+	level_mat = new Materials(pixelShader, vertexShader, levelSRV, sampleState);
 
 	// set up post processing resources
 	D3D11_TEXTURE2D_DESC textureDesc = {};
@@ -245,7 +252,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 	//update game objects
 	level->Update(deltaTime, totalTime);
-	player->Update();
+	player->Update(deltaTime, totalTime);
 }
 
 // --------------------------------------------------------
@@ -263,6 +270,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
 	//  - At the beginning of Draw (before drawing *anything*)
+	context->ClearRenderTargetView(ppRTV, color);
 	context->ClearRenderTargetView(backBufferRTV, color);
 	context->ClearDepthStencilView(
 		depthStencilView,
@@ -422,6 +430,12 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 // --------------------------------------------------------
 void Game::OnMouseWheel(float wheelDelta, int x, int y)
 {
+	bool dir = 0;
+	if (wheelDelta < 0)
+		dir = 0;
+	else
+		dir = 1;
 	// Add any custom code here...
+	player->WheelMove(dir);
 }
 #pragma endregion

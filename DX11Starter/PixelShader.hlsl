@@ -58,6 +58,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 {
 	float4 surfaceColor = diffuseTexture.Sample(basicSampler, input.uv);
 
+	if (surfaceColor.a < 0.2f)
+		discard;
+
 	// Just return the input color
 	// - This color (like most values passing through the rasterizer) is 
 	//   interpolated for each pixel between the corresponding vertices 
@@ -89,7 +92,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float pointLightSpecular = pow(saturate(dot(refl, dirToCamera)), 64);
 	*/
 
-	lightsOut += pointLight1.PL_Color * (pointLightAmount);
+	lightsOut += pointLight1.PL_Color * pointLightAmount;
 
 	//return float4(surfaceColor.yyy, 1.0f);
 	return surfaceColor * lightsOut;

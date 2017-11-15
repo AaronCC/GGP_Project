@@ -63,6 +63,7 @@ private:
 
 	Materials* checker_mat; //checker
 	Materials* rainbow_mat; //rainbow
+	Materials* level_mat; //level
 
 	DirectionalLight light;
 	DirectionalLight light2;
@@ -72,10 +73,12 @@ private:
 
 	ID3D11ShaderResourceView* checkerSRV;
 	ID3D11ShaderResourceView* rainbowSRV;
+	ID3D11ShaderResourceView* levelSRV;
 
 	ID3D11SamplerState* sampleState;
 
 	Level* level;
+	//Entity* backDrop;
 
 	// Post process stuff
 	//render trget view - draw to this

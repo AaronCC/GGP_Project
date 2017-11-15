@@ -1,5 +1,5 @@
 #include "Player.h"
-
+#define COOLDOWN 1
 using namespace DirectX;
 
 Player::Player(Level * level, Materials* material, ID3D11Device* device)
@@ -12,6 +12,9 @@ Player::Player(Level * level, Materials* material, ID3D11Device* device)
 
 	XMFLOAT3 loc = level->getLanePos(pos);
 	entity->SetTranslation(loc.x, loc.y, 0.f);
+
+	cooldown = COOLDOWN;
+	ammo = 10;
 }
 
 Player::~Player()
@@ -20,7 +23,22 @@ Player::~Player()
 	delete entity;
 }
 
-void Player::Update()
+// 0 = !clockwise, 1 = clockwise
+void Player::WheelMove(bool dir)
+{
+	if(dir)
+		if (pos + 1 > level->getLaneCount() - 1)
+			pos = 0;
+		else
+			pos++;
+	else
+		if (pos - 1 < 0)
+			pos = level->getLaneCount() - 1;
+		else
+			pos--;
+}
+
+void Player::Update(float deltaTime, float totalTime)
 {
 	//hotkeys
 	if (oldAState == false && GetAsyncKeyState('A') & 0x8000) { 
@@ -35,9 +53,22 @@ void Player::Update()
 		else
 			pos++;
 	}
-	if (oldWState == false && GetAsyncKeyState('W') & 0x8000) {
+	if (oldWState == false && GetAsyncKeyState('W') & 0x8000 && ammo > 0/* && cooldown <= 0*/) {
 		level->getLane(pos)->SpawnProj();
+		ammo--;
+		//cooldown = 0.5f; // set cooldown timer
 	}
+
+	//track and update cooldown of shooting
+	cooldown -= deltaTime;
+	if (cooldown <= 0) {
+		cooldown = COOLDOWN;
+		if (ammo < 10) {
+			ammo++;
+		}
+
+	}
+
 	//track old key state
 	oldAState = GetAsyncKeyState('A');
 	oldDState = GetAsyncKeyState('D');
