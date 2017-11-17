@@ -15,6 +15,8 @@ public:
 
 	void Update(float deltaTime, float totalTime);
 	Entity* getEntity() { return entity; }
+	void setLevel(Level* newLevel) { level = newLevel; }
+
 private:
 	bool oldAState;
 	bool oldDState;

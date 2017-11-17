@@ -28,12 +28,16 @@ public:
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
 
+	void CreateLevel(const UINT stage, const float variance, const float depth, const float length);
+
 	// Overridden mouse input helper methods
 	void OnMouseDown (WPARAM buttonState, int x, int y);
 	void OnMouseUp	 (WPARAM buttonState, int x, int y);
 	void OnMouseMove (WPARAM buttonState, int x, int y);
 	void OnMouseWheel(float wheelDelta,   int x, int y);
 private:
+
+	UINT stage;
 
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void LoadShaders(); 

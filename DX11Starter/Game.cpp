@@ -32,7 +32,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
-	
+
 }
 
 // --------------------------------------------------------
@@ -93,30 +93,34 @@ void Game::Init()
 	light2.DiffuseColor = XMFLOAT4(1, 0, 0, 1);
 	light2.Direction = XMFLOAT3(0.5, 0, 1);
 
-	pointLight1.PL_Position = XMFLOAT3(0,0,20); //put the light on the origin for now
-	pointLight1.PL_Color = XMFLOAT4(1,1,1,1);
+	pointLight1.PL_Position = XMFLOAT3(0, 0, 20); //put the light on the origin 
+	pointLight1.PL_Color = XMFLOAT4(1, 1, 1, 1);
 
 	//create the level
-	level = new Level(level_mat);
+	//level = new Level(level_mat);
 
-	//set the level variables
-	const int LANES = 10; // the uv mapping does not like odd numbers
-	Vertex verts[LANES * 2] = {}; //vertex array null w/ length = lanecount*2
-	int inds[LANES * 6] = {}; // ind array w/ length = lanecount*6
+	////set the level variables
+	//const int LANES = 10; // the uv mapping does not like odd numbers
+	//Vertex verts[LANES * 2] = {}; //vertex array null w/ length = lanecount*2
+	//int inds[LANES * 6] = {}; // ind array w/ length = lanecount*6
 
-	//generate the level
-	level->genLevel(device,		// device
-					inds,		// array of indices
-					verts,		// vertex of verts
-					LANES,		// number of lanes
-					8.0,		// starting distance of vertex to origin
-					8,			// max variance
-					75.0,		// depth of level
-					checker_mat,	// enemy material
-					rainbow_mat);	// projectile material
+	////generate the level
+	//level->genLevel(device,		// device
+	//	inds,		// array of indices
+	//	verts,		// vertex of verts
+	//	LANES,		// number of lanes
+	//	8.0,		// starting distance of vertex to origin
+	//	8,			// max variance
+	//	75.0,		// depth of level
+	//	checker_mat,	// enemy material
+	//	rainbow_mat);	// projectile material
 
-	// Create Player
+	level = nullptr;
+	CreateLevel(this->stage, 8.f, 75.f, 8.f);
+
+// Create Player
 	this->player = new Player(level, rainbow_mat, device);
+	stage = 1;
 
 	//create backdrop
 	//backDrop = new Entity();
@@ -140,14 +144,14 @@ void Game::LoadShaders()
 
 	pixelShader = new SimplePixelShader(device, context);
 	pixelShader->LoadShaderFile(L"PixelShader.cso");
-	
+
 	// Post processing shaders
 	ppVS = new SimpleVertexShader(device, context);
 	ppVS->LoadShaderFile(L"PP_VS.cso");
 
 	ppPS = new SimplePixelShader(device, context);
 	ppPS->LoadShaderFile(L"PP_PS.cso");
-	
+
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.png", 0, &checkerSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow.png", 0, &rainbowSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/level.png", 0, &levelSRV);
@@ -213,7 +217,7 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateMatrices()
 {
-	Cam->ProjectMat(width,height);
+	Cam->ProjectMat(width, height);
 }
 
 
@@ -243,11 +247,15 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
 
+	//level 2
+	if (GetAsyncKeyState('U')) {
+		CreateLevel(this->stage, 8.f, 75.f, 8.f);
+		this->stage++;
+		player->setLevel(this->level);
+	}
 	//timer for some of the transformations
 	float sinTime = (sin(totalTime * 10.0f) + 2.0f) / 10.0f;
 
-	//OnMouseDown(); //how do I do mouse controls?
-	
 	Cam->Update(deltaTime);
 
 	//update game objects
@@ -321,7 +329,7 @@ void Game::Draw(float deltaTime, float totalTime)
 			projEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), projEntity->mesh, sampleState);
 		}
 	}
-	
+
 	//draw the level
 	Entity* levelEntity = level->getEntity();
 	levelEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), levelEntity->mesh, sampleState);
@@ -329,7 +337,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	//draw the player
 	Entity* playerEntity = player->getEntity();
 	playerEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntity->mesh, sampleState);
-	
+
 	//post processing
 	//set render target back to backbuffer + clear it
 	context->OMSetRenderTargets(1, &backBufferRTV, 0);
@@ -369,6 +377,68 @@ void Game::Draw(float deltaTime, float totalTime)
 	swapChain->Present(0, 0);
 }
 
+void Game::CreateLevel(const UINT stage, const float variance, const float depth, const float length)
+{
+	if (level != nullptr) {
+		level->~Level();
+	}
+
+	level = new Level(level_mat);
+	if (stage == 1) {
+		//remake the level
+		//set the level variables
+		const int LANES = 4; // the uv mapping does not like odd numbers
+		Vertex verts[LANES * 2] = {}; //vertex array null w/ length = lanecount*2
+		int inds[LANES * 6] = {}; // ind array w/ length = lanecount*6
+
+		level->genLevel(device,		// device
+			inds,		// array of indices
+			verts,		// vertex of verts
+			LANES,		// number of lanes
+			length,		// starting distance of vertex to origin
+			variance,			// max variance
+			depth,		// depth of level
+			checker_mat,	// enemy material
+			rainbow_mat);	// projectile material
+	}
+	else if (stage == 2) {
+		const int LANES = 6; // the uv mapping does not like odd numbers
+		Vertex verts[LANES * 2] = {}; //vertex array null w/ length = lanecount*2
+		int inds[LANES * 6] = {}; // ind array w/ length = lanecount*6
+
+		level->genLevel(device,		// device
+			inds,		// array of indices
+			verts,		// vertex of verts
+			LANES,		// number of lanes
+			length,		// starting distance of vertex to origin
+			variance,			// max variance
+			depth,		// depth of level
+			checker_mat,	// enemy material
+			rainbow_mat);	// projectile material
+	}
+	else if (stage == 3) {
+		const int LANES = 8; // the uv mapping does not like odd numbers
+		Vertex verts[LANES * 2] = {}; //vertex array null w/ length = lanecount*2
+		int inds[LANES * 6] = {}; // ind array w/ length = lanecount*6
+
+		level->genLevel(device,		// device
+			inds,		// array of indices
+			verts,		// vertex of verts
+			LANES,		// number of lanes
+			length,		// starting distance of vertex to origin
+			variance,			// max variance
+			depth,		// depth of level
+			checker_mat,	// enemy material
+			rainbow_mat);	// projectile material
+	}
+	else {
+		level = nullptr;
+		this->stage = 1;
+		CreateLevel(this->stage, variance, depth, length);
+	}
+
+}
+
 
 #pragma region Mouse Input
 
@@ -397,7 +467,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
-	Cam->SetRot(0,0); //stop mouse movement when the button is released
+	Cam->SetRot(0, 0); //stop mouse movement when the button is released
 
 
 	// We don't care about the tracking the cursor outside

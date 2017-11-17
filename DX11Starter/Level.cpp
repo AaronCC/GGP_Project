@@ -13,7 +13,7 @@ Level::~Level()
 	delete levelMesh;
 	delete levelEntity;
 	for each(Lane* lane in lanes)
-		delete lane;
+		lane->~Lane();
 }
 
 void Level::genLevel(ID3D11Device*	device,
@@ -24,6 +24,9 @@ void Level::genLevel(ID3D11Device*	device,
 {
 	srand(time(NULL));
 	float angle = 0.f;
+
+	//clear out the old lanes
+	lanes.clear();
 
 	std::vector<XMFLOAT3> positions;
 	std::vector<XMFLOAT3> normals;
