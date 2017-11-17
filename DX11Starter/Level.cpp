@@ -6,6 +6,7 @@ using namespace DirectX;
 Level::Level(Materials* mat)
 {
 	material = mat;
+	srand(time(NULL));
 }
 
 Level::~Level()
@@ -114,6 +115,6 @@ void Level::Update(float deltaTime, float totalTime)
 	//update all the lanes
 	for each(Lane* lane in lanes)
 	{
-		lane->Update(deltaTime, totalTime);
+		lane->Update(deltaTime, totalTime, std::rand() % 3500);
 	}
 }

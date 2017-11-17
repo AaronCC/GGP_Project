@@ -17,7 +17,7 @@ public:
 
 	void SpawnEnemy();
 	void SpawnProj();
-	void Update(float deltaTime, float totalTime);
+	void Update(float deltaTime, float totalTime, float random);
 
 	XMFLOAT3 getPos() { return XMFLOAT3{ pos.x, pos.y, depth }; }
 	std::vector<Enemy*>* getEnemies() { return &enemies; }

@@ -7,8 +7,6 @@ Lane::Lane(XMFLOAT2 pos, float depth, Materials * enemyMat, Materials * projMat,
 	this->device = device;
 	this->pos = pos;
 	this->depth = depth;
-	//each lane should spawn an enemy at start for now
-	SpawnEnemy();
 }
 
 Lane::~Lane()
@@ -31,10 +29,16 @@ void Lane::SpawnProj()
 	projs.push_back(new Projectile(projMat, device, XMFLOAT3{ this->pos.x, this->pos.y, 0.f }));
 }
 
-void Lane::Update(float deltaTime, float totalTime)
+void Lane::Update(float deltaTime, float totalTime, float random)
 {
 	/*std::vector<int> todelete;
 	int delIndex;*/
+
+	//spawn enemies
+	if (random == 1)
+	{
+		SpawnEnemy();
+	}
 
 	//update each enemy in lane
 	for each(Enemy* enemy in enemies)
