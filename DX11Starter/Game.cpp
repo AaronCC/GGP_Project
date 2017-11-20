@@ -122,6 +122,8 @@ void Game::Init()
 	this->player = new Player(level, rainbow_mat, device);
 	stage = 1;
 
+	CA_Intensity = 0;
+
 	//create backdrop
 	//backDrop = new Entity();
 
@@ -253,6 +255,15 @@ void Game::Update(float deltaTime, float totalTime)
 		this->stage++;
 		player->setLevel(this->level);
 	}
+
+	//set chromatic aberration intensity
+	if (GetAsyncKeyState('O')) {
+		CA_Intensity = 1.0f;
+	}
+	else {
+		CA_Intensity = 0;
+	}
+
 	//timer for some of the transformations
 	float sinTime = (sin(totalTime * 10.0f) + 2.0f) / 10.0f;
 
@@ -352,6 +363,9 @@ void Game::Draw(float deltaTime, float totalTime)
 	//ppPS->SetFloat("pixelWidth", 1.0f / width);
 	//ppPS->SetFloat("pixelHeight", 1.0f / height);
 	//ppPS->SetInt("blurAmount", 2);
+
+	//send in chromatic aberration value
+	ppPS->SetFloat("SplitIntensity", CA_Intensity);
 	ppPS->CopyAllBufferData();
 
 	ppPS->SetShaderResourceView("Pixels", ppSRV);
