@@ -6,6 +6,7 @@ using namespace DirectX;
 Level::Level(Materials* mat)
 {
 	material = mat;
+	levelClear = false;
 	srand(time(NULL));
 }
 
@@ -20,7 +21,7 @@ Level::~Level()
 void Level::genLevel(ID3D11Device*	device,
 	int* inds, // int array (0..n) where n = 6 * number of lanes
 	Vertex* verts, // Vertex array (null) where length = 2 * number of lanes
-	const int LANE_COUNT, const float LENGTH, const int MAX_VARIANCE, const float DEPTH, 
+	const int LANE_COUNT, const float LENGTH, const int MAX_VARIANCE, const float DEPTH, int maxEnemies,
 	Materials* enemyMat, Materials* projMat)
 {
 	srand(time(NULL));
@@ -102,7 +103,7 @@ void Level::genLevel(ID3D11Device*	device,
 		else
 			mid = { (positions[i].x + positions[i + 1].x) / 2.f,(positions[i].y + positions[i + 1].y) / 2.f };
 
-		lanes.push_back(new Lane(mid, DEPTH, enemyMat, projMat, device));
+		lanes.push_back(new Lane(mid, DEPTH, maxEnemies, enemyMat, projMat, device));
 	}
 
 	// level mesh
@@ -112,9 +113,24 @@ void Level::genLevel(ID3D11Device*	device,
 
 void Level::Update(float deltaTime, float totalTime)
 {
+	levelClear = IsLevelClear();
+
 	//update all the lanes
 	for each(Lane* lane in lanes)
 	{
 		lane->Update(deltaTime, totalTime, std::rand() % 3500);
 	}
+}
+
+bool Level::IsLevelClear()
+{
+	for each(Lane* lane in lanes)
+	{
+		//if one lane is not clear, the level is not clear
+		if (lane->clear == false) {
+			return false;
+		}
+	}
+	//if all lanes are clear, the level is clear
+	return true;
 }

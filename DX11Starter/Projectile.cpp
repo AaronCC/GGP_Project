@@ -26,7 +26,7 @@ Projectile::~Projectile()
 void Projectile::Update(float deltaTime, float totalTime)
 {
 	//hardcoded speed for now
-	const int speed = 15;
+	const int speed = 30;
 
 	//move down the lane
 	depth += deltaTime * speed;

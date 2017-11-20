@@ -12,7 +12,7 @@ class Lane
 {
 public:
 
-	Lane(XMFLOAT2 pos, float depth, Materials* enemyMat, Materials* projMat, ID3D11Device* device);
+	Lane(XMFLOAT2 pos, float depth, int maxEnemies, Materials* enemyMat, Materials* projMat, ID3D11Device* device);
 	~Lane();
 
 	void SpawnEnemy();
@@ -24,10 +24,18 @@ public:
 	std::vector<Enemy*>* getEnemies() { return &enemies; }
 	std::vector<Projectile*>* getProjectiles() { return &projs; }
 
+	int maxEnemies;
+	int spawnedEnemies;
+	int deadEnemies;
+	bool clear;
+
 private:
 	XMFLOAT2 pos; // X and Y of the lane
 	float depth;
 	float aberrateTimer;
+
+
+
 	std::vector<Projectile*> projs;
 	std::vector<Enemy*> enemies;
 

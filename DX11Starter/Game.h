@@ -28,7 +28,7 @@ public:
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
 
-	void CreateLevel(const UINT stage, const float variance, const float depth, const float length);
+	void CreateLevel(const UINT stage, const float variance, const float depth, const float length, int maxEnemies);
 
 	// Overridden mouse input helper methods
 	void OnMouseDown (WPARAM buttonState, int x, int y);

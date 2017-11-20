@@ -1,6 +1,6 @@
 #include "Lane.h"
 
-Lane::Lane(XMFLOAT2 pos, float depth, Materials * enemyMat, Materials * projMat, ID3D11Device * device)
+Lane::Lane(XMFLOAT2 pos, float depth, int maxEnemies, Materials * enemyMat, Materials * projMat, ID3D11Device * device)
 {
 	this->enemyMat = enemyMat;
 	this->projMat = projMat;
@@ -8,6 +8,11 @@ Lane::Lane(XMFLOAT2 pos, float depth, Materials * enemyMat, Materials * projMat,
 	this->pos = pos;
 	this->depth = depth;
 	this->aberrateTimer = 0.0;
+
+	this->maxEnemies = maxEnemies;
+	this->spawnedEnemies = 0;
+	this->deadEnemies = 0;
+	this->clear = false;
 }
 
 Lane::~Lane()
@@ -36,9 +41,11 @@ void Lane::Update(float deltaTime, float totalTime, float random)
 	int delIndex;*/
 
 	//spawn enemies
-	if (random == 1)
+	//put a cap on how many spawn
+	if (random == 1 && spawnedEnemies < maxEnemies)
 	{
 		SpawnEnemy();
+		spawnedEnemies++;
 	}
 
 	//update each enemy in lane
@@ -87,6 +94,7 @@ void Lane::Update(float deltaTime, float totalTime, float random)
 		enemy = enemies[0];
 		if (enemy->getDepth() < 0) { enemies.erase(enemies.begin());
 			delete enemy;
+			deadEnemies++;
 			
 			aberrateTimer += 1.0; // when an enemy reaches the end of the level, increase the chro abb time
 			if (aberrateTimer >= 3.0) // cap the timer
@@ -108,7 +116,12 @@ void Lane::Update(float deltaTime, float totalTime, float random)
 			enemies.erase(enemies.begin());
 			delete proj;
 			delete enemy;
+			deadEnemies++;
 		}
 	}
 
+	//if all enemies in the lane are dead
+	if (deadEnemies == maxEnemies) {
+		this->clear = true;
+	}
 }

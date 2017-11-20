@@ -116,11 +116,11 @@ void Game::Init()
 	//	rainbow_mat);	// projectile material
 
 	level = nullptr;
-	CreateLevel(this->stage, 8.f, 75.f, 8.f);
-
-// Create Player
-	this->player = new Player(level, rainbow_mat, device);
 	stage = 1;
+	CreateLevel(this->stage, 8.f, 75.f, 8.f, 1);
+
+	// Create Player
+	this->player = new Player(level, rainbow_mat, device);
 
 	//create backdrop
 	//backDrop = new Entity();
@@ -247,10 +247,16 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
 
-	//level 2
-	if (GetAsyncKeyState('U')) {
-		CreateLevel(this->stage, 8.f, 75.f, 8.f);
+	//level change
+	//if (GetAsyncKeyState('U')) {
+	//	CreateLevel(this->stage, 8.f, 75.f, 8.f, 10);
+	//	this->stage++;
+	//	player->setLevel(this->level);
+	//}
+
+	if (level->getLevelClear() == true) {
 		this->stage++;
+		CreateLevel(this->stage, 8.f, 75.f, 8.f, 1);
 		player->setLevel(this->level);
 	}
 
@@ -383,7 +389,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	swapChain->Present(0, 0);
 }
 
-void Game::CreateLevel(const UINT stage, const float variance, const float depth, const float length)
+void Game::CreateLevel(const UINT stage, const float variance, const float depth, const float length, int maxEnemies)
 {
 	if (level != nullptr) {
 		level->~Level();
@@ -403,7 +409,8 @@ void Game::CreateLevel(const UINT stage, const float variance, const float depth
 			LANES,		// number of lanes
 			length,		// starting distance of vertex to origin
 			variance,			// max variance
-			depth,		// depth of level
+			depth,
+			maxEnemies,				// depth of level
 			checker_mat,	// enemy material
 			rainbow_mat);	// projectile material
 	}
@@ -418,7 +425,8 @@ void Game::CreateLevel(const UINT stage, const float variance, const float depth
 			LANES,		// number of lanes
 			length,		// starting distance of vertex to origin
 			variance,			// max variance
-			depth,		// depth of level
+			depth,
+			maxEnemies,		// depth of level
 			checker_mat,	// enemy material
 			rainbow_mat);	// projectile material
 	}
@@ -433,14 +441,15 @@ void Game::CreateLevel(const UINT stage, const float variance, const float depth
 			LANES,		// number of lanes
 			length,		// starting distance of vertex to origin
 			variance,			// max variance
-			depth,		// depth of level
+			depth,
+			maxEnemies,		// depth of level
 			checker_mat,	// enemy material
 			rainbow_mat);	// projectile material
 	}
 	else {
 		level = nullptr;
 		this->stage = 1;
-		CreateLevel(this->stage, variance, depth, length);
+		CreateLevel(this->stage, variance, depth, length, maxEnemies);
 	}
 
 }
