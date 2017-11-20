@@ -256,12 +256,24 @@ void Game::Update(float deltaTime, float totalTime)
 		player->setLevel(this->level);
 	}
 
-	//set chromatic aberration intensity
-	if (GetAsyncKeyState('O')) {
-		CA_Intensity = 1.0f;
-	}
-	else {
-		CA_Intensity = 0;
+	////set chromatic aberration intensity
+	//if (GetAsyncKeyState('O')) {
+	//	CA_Intensity = 1.0f;
+	//}
+	//else {
+	//	CA_Intensity = 0;
+	//}
+
+	//set intensity to 0;
+	CA_Intensity = 0;
+	//get vector of lanes
+	std::vector<Lane*>* lanes = level->getLanes();
+	for each(Lane* lane in *lanes)
+	{
+		//if an enemy in any lane reached the player depth, turn aberration on
+		if (lane->doAberrate == true) {
+			CA_Intensity = 1.0f;
+		}
 	}
 
 	//timer for some of the transformations

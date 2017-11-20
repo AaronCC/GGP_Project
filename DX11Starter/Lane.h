@@ -23,6 +23,9 @@ public:
 	std::vector<Enemy*>* getEnemies() { return &enemies; }
 	std::vector<Projectile*>* getProjectiles() { return &projs; }
 
+	bool doAberrate;
+	float aberrateTimer;
+
 private:
 	XMFLOAT2 pos; // X and Y of the lane
 	float depth;
