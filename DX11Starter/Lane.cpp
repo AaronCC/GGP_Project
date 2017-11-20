@@ -7,8 +7,6 @@ Lane::Lane(XMFLOAT2 pos, float depth, Materials * enemyMat, Materials * projMat,
 	this->device = device;
 	this->pos = pos;
 	this->depth = depth;
-
-	this->doAberrate = false;
 	this->aberrateTimer = 0.0;
 }
 
@@ -96,13 +94,9 @@ void Lane::Update(float deltaTime, float totalTime, float random)
 		}
 	}
 
-	//if the timer is non-zero, turn abberation on and decrement the timer
-	if(aberrateTimer > 0.0) {
-		doAberrate = true;
+	//if the timer is non-zero, decrement the timer
+	if(aberrateTimer > 0.0) {;
 		aberrateTimer -= deltaTime;
-	}
-	else { //if the timer is zero, turn aberration off
-		doAberrate = false;
 	}
 
 	//bargain bin collision

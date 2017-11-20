@@ -20,15 +20,14 @@ public:
 	void Update(float deltaTime, float totalTime, float random);
 
 	XMFLOAT3 getPos() { return XMFLOAT3{ pos.x, pos.y, depth }; }
+	float getAberration() { return aberrateTimer; }
 	std::vector<Enemy*>* getEnemies() { return &enemies; }
 	std::vector<Projectile*>* getProjectiles() { return &projs; }
-
-	bool doAberrate;
-	float aberrateTimer;
 
 private:
 	XMFLOAT2 pos; // X and Y of the lane
 	float depth;
+	float aberrateTimer;
 	std::vector<Projectile*> projs;
 	std::vector<Enemy*> enemies;
 

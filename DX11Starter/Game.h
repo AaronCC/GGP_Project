@@ -84,8 +84,6 @@ private:
 	Level* level;
 	//Entity* backDrop;
 
-	float CA_Intensity;
-
 	// Post process stuff
 	//render trget view - draw to this
 	ID3D11RenderTargetView* ppRTV;

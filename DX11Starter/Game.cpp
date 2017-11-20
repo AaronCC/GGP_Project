@@ -122,8 +122,6 @@ void Game::Init()
 	this->player = new Player(level, rainbow_mat, device);
 	stage = 1;
 
-	CA_Intensity = 0;
-
 	//create backdrop
 	//backDrop = new Entity();
 
@@ -256,26 +254,6 @@ void Game::Update(float deltaTime, float totalTime)
 		player->setLevel(this->level);
 	}
 
-	////set chromatic aberration intensity
-	//if (GetAsyncKeyState('O')) {
-	//	CA_Intensity = 1.0f;
-	//}
-	//else {
-	//	CA_Intensity = 0;
-	//}
-
-	//set intensity to 0;
-	CA_Intensity = 0;
-	//get vector of lanes
-	std::vector<Lane*>* lanes = level->getLanes();
-	for each(Lane* lane in *lanes)
-	{
-		//if an enemy in any lane reached the player depth, turn aberration on
-		if (lane->doAberrate == true) {
-			CA_Intensity = 1.0f;
-		}
-	}
-
 	//timer for some of the transformations
 	float sinTime = (sin(totalTime * 10.0f) + 2.0f) / 10.0f;
 
@@ -335,10 +313,12 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	//get vector of lanes
 	std::vector<Lane*>* lanes = level->getLanes();
-
+	float CroAbb = 0;
 	//loop through lanes
 	for each(Lane* lane in *lanes)
 	{
+		CroAbb += lane->getAberration();
+
 		//draw each enemy
 		for each(Enemy* enemy in *lane->getEnemies())
 		{
@@ -377,7 +357,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	//ppPS->SetInt("blurAmount", 2);
 
 	//send in chromatic aberration value
-	ppPS->SetFloat("SplitIntensity", CA_Intensity);
+	ppPS->SetFloat("SplitIntensity", CroAbb);
 	ppPS->CopyAllBufferData();
 
 	ppPS->SetShaderResourceView("Pixels", ppSRV);
