@@ -1,7 +1,7 @@
 ﻿  Game.cpp
 c:\users\owner\desktop\justin_repo\ggp_project\dx11starter\level.h(19): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-c:\users\owner\desktop\justin_repo\ggp_project\dx11starter\game.cpp(415): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-c:\users\owner\desktop\justin_repo\ggp_project\dx11starter\game.cpp(431): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-c:\users\owner\desktop\justin_repo\ggp_project\dx11starter\game.cpp(447): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-c:\users\owner\desktop\justin_repo\ggp_project\dx11starter\game.cpp(503): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+c:\users\owner\desktop\justin_repo\ggp_project\dx11starter\game.cpp(410): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
+c:\users\owner\desktop\justin_repo\ggp_project\dx11starter\game.cpp(426): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
+c:\users\owner\desktop\justin_repo\ggp_project\dx11starter\game.cpp(442): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
+c:\users\owner\desktop\justin_repo\ggp_project\dx11starter\game.cpp(497): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
   DX11Starter.vcxproj -> C:\Users\Owner\Desktop\Justin_Repo\GGP_Project\x64\Debug\DX11Starter.exe

@@ -117,7 +117,7 @@ void Game::Init()
 
 	level = nullptr;
 	stage = 1;
-	CreateLevel(this->stage, 8.f, 75.f, 8.f, 1);
+	CreateLevel(this->stage, 8.f, 75.f, 8.f, 4);
 
 	// Create Player
 	this->player = new Player(level, rainbow_mat, device);
@@ -247,17 +247,12 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
 
-	//level change
-	//if (GetAsyncKeyState('U')) {
-	//	CreateLevel(this->stage, 8.f, 75.f, 8.f, 10);
-	//	this->stage++;
-	//	player->setLevel(this->level);
-	//}
-
 	if (level->getLevelClear() == true) {
 		this->stage++;
-		CreateLevel(this->stage, 8.f, 75.f, 8.f, 1);
+		CreateLevel(this->stage, 8.f, 75.f, 8.f, 5);
 		player->setLevel(this->level);
+		//set the player's position to 0
+		player->setPos(0);
 	}
 
 	//timer for some of the transformations
@@ -451,7 +446,6 @@ void Game::CreateLevel(const UINT stage, const float variance, const float depth
 		this->stage = 1;
 		CreateLevel(this->stage, variance, depth, length, maxEnemies);
 	}
-
 }
 
 
