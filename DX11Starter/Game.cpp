@@ -387,7 +387,8 @@ void Game::Draw(float deltaTime, float totalTime)
 void Game::CreateLevel(const UINT stage, const float variance, const float depth, const float length, int maxEnemies)
 {
 	if (level != nullptr) {
-		level->~Level();
+		//level->~Level();
+		delete level;
 	}
 
 	level = new Level(level_mat);

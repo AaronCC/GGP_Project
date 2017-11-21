@@ -15,7 +15,7 @@ Level::~Level()
 	delete levelMesh;
 	delete levelEntity;
 	for each(Lane* lane in lanes)
-		lane->~Lane();
+		delete lane;
 }
 
 void Level::genLevel(ID3D11Device*	device,
