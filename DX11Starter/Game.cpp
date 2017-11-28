@@ -55,6 +55,7 @@ Game::~Game()
 	delete checker_mat;
 	delete rainbow_mat;
 	delete level_mat;
+	delete outline_mat;
 
 	//Level1->~Level();
 	delete level;
@@ -63,6 +64,7 @@ Game::~Game()
 	checkerSRV->Release();
 	rainbowSRV->Release();
 	levelSRV->Release();
+	outlineSRV->Release();
 	sampleState->Release();
 
 	//clean up post process stuff
@@ -70,6 +72,9 @@ Game::~Game()
 	ppRTV->Release();
 	delete ppPS;
 	delete ppVS;
+
+	//clean up outline stuff
+	invRasterState->Release();
 }
 
 // --------------------------------------------------------
@@ -93,8 +98,11 @@ void Game::Init()
 	light2.DiffuseColor = XMFLOAT4(1, 0, 0, 1);
 	light2.Direction = XMFLOAT3(0.5, 0, 1);
 
-	pointLight1.PL_Position = XMFLOAT3(0, 0, 20); //put the light on the origin 
+	pointLight1.PL_Position = XMFLOAT3(0, 0, 32.5); //put the light at depth/2
 	pointLight1.PL_Color = XMFLOAT4(1, 1, 1, 1);
+
+	pointLight2.PL_Position = XMFLOAT3(0, 0, -20); //put the light at origin
+	pointLight2.PL_Color = XMFLOAT4(1, 1, 1, 1);
 
 	//create the level
 	//level = new Level(level_mat);
@@ -120,7 +128,7 @@ void Game::Init()
 	CreateLevel(this->stage, 8.f, 75.f, 8.f, 4);
 
 	// Create Player
-	this->player = new Player(level, rainbow_mat, device);
+	this->player = new Player(level, rainbow_mat, outline_mat, device);
 
 	//create backdrop
 	//backDrop = new Entity();
@@ -155,6 +163,7 @@ void Game::LoadShaders()
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.png", 0, &checkerSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow.png", 0, &rainbowSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/level.png", 0, &levelSRV);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/gold.png", 0, &outlineSRV);
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -169,6 +178,7 @@ void Game::LoadShaders()
 	checker_mat = new Materials(pixelShader, vertexShader, checkerSRV, sampleState);
 	rainbow_mat = new Materials(pixelShader, vertexShader, rainbowSRV, sampleState);
 	level_mat = new Materials(pixelShader, vertexShader, levelSRV, sampleState);
+	outline_mat = new Materials(pixelShader, vertexShader, outlineSRV, sampleState);
 
 	// set up post processing resources
 	D3D11_TEXTURE2D_DESC textureDesc = {};
@@ -204,6 +214,14 @@ void Game::LoadShaders()
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 
 	device->CreateShaderResourceView(ppTexture, &srvDesc, &ppSRV);
+
+	//create inverted rasterizer state
+	D3D11_RASTERIZER_DESC rasDesc = {};
+	rasDesc.FillMode = D3D11_FILL_WIREFRAME;	// draw solid
+	rasDesc.CullMode = D3D11_CULL_FRONT;	// draw the inside faces
+	rasDesc.DepthClipEnable = true;
+
+	device->CreateRasterizerState(&rasDesc, &invRasterState);
 
 	//release the texture because it is now useless
 	ppTexture->Release();
@@ -304,6 +322,11 @@ void Game::Draw(float deltaTime, float totalTime)
 		&pointLight1,
 		sizeof(PointLight));
 
+	pixelShader->SetData(
+		"pointLight2",
+		&pointLight2,
+		sizeof(PointLight));
+
 	//pass the cameras position to the camera
 	pixelShader->SetData(
 		"CameraPosition",
@@ -341,6 +364,12 @@ void Game::Draw(float deltaTime, float totalTime)
 	//draw the player
 	Entity* playerEntity = player->getEntity();
 	playerEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntity->mesh, sampleState);
+
+	//draw the player outline
+	Entity* playerEntityOutline = player->getOutlineEntity();	//get the player entity - scaled up in player
+	context->RSSetState(invRasterState);				//set render state to new rasterizer
+	playerEntityOutline->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntityOutline->mesh, sampleState); 
+	context->RSSetState(0);	//reset renderstate
 
 	//post processing
 	//set render target back to backbuffer + clear it

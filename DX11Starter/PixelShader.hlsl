@@ -47,6 +47,7 @@ cbuffer externalData : register(b0)
 	DirectionalLight light2;
 
 	PointLight pointLight1;
+	PointLight pointLight2;
 
 	float3 CameraPosition;
 };
@@ -82,6 +83,10 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 dirToPointLight = normalize(pointLight1.PL_Position - input.worldPos);
 	float pointLightAmount = saturate(dot(input.normal, dirToPointLight));
 
+	// POINT LIGHT ORIGIN
+	float3 dirToPointLight2 = normalize(pointLight2.PL_Position - input.worldPos);
+	float pointLight2Amount = saturate(dot(input.normal, dirToPointLight2));
+
 	/*
 	// point light shiny bit - currently unused
 	//calc reflection vector of incoming light
@@ -92,7 +97,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float pointLightSpecular = pow(saturate(dot(refl, dirToCamera)), 64);
 	*/
 
-	lightsOut += pointLight1.PL_Color * pointLightAmount;
+	lightsOut += 
+		(pointLight1.PL_Color * pointLightAmount) +
+		(pointLight2.PL_Color * pointLight2Amount);
 
 	//return float4(surfaceColor.yyy, 1.0f);
 	return surfaceColor * lightsOut;

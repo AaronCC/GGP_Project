@@ -4,7 +4,7 @@
 Enemy::Enemy(Materials * material, ID3D11Device * device, XMFLOAT3 pos)
 {
 	//load enemy model
-	mesh = new Mesh("Assets/Models/sphere.obj", device);
+	mesh = new Mesh("Assets/Models/enemy.obj", device);
 	entity = new Entity(mesh, material);
 
 	this->pos = pos;

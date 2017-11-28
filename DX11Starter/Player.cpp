@@ -2,16 +2,20 @@
 #define COOLDOWN 1
 using namespace DirectX;
 
-Player::Player(Level * level, Materials* material, ID3D11Device* device)
+Player::Player(Level * level, Materials* material, Materials* outlineMat, ID3D11Device* device)
 {
 	this->level = level;
-	mesh = new Mesh("Assets/Models/cube.obj", device);
+	mesh = new Mesh("Assets/Models/player.obj", device);
 	entity = new Entity(mesh, material);
-
+	outlineEntity = new Entity(mesh, outlineMat);
 	pos = 0.f;
 
 	XMFLOAT3 loc = level->getLanePos(pos);
 	entity->SetTranslation(loc.x, loc.y, 0.f);
+
+	outlineEntity->SetTranslation(loc.x, loc.y, 0.f);
+	outlineEntity->SetScale(1.5f, 1.5f, 1.5f);
+	outlineEntity->UpdateMatrix();
 
 	cooldown = COOLDOWN;
 	ammo = 10;
@@ -21,6 +25,7 @@ Player::~Player()
 {
 	delete mesh;
 	delete entity;
+	delete outlineEntity;
 }
 
 // 0 = !clockwise, 1 = clockwise
@@ -78,4 +83,7 @@ void Player::Update(float deltaTime, float totalTime)
 	XMFLOAT3 loc = level->getLanePos(pos);
 	entity->SetTranslation(loc.x, loc.y, 0.f);
 	entity->UpdateMatrix();
+
+	outlineEntity->SetTranslation(loc.x, loc.y, 0.f);
+	outlineEntity->UpdateMatrix();
 }

@@ -68,16 +68,19 @@ private:
 	Materials* checker_mat; //checker
 	Materials* rainbow_mat; //rainbow
 	Materials* level_mat; //level
+	Materials* outline_mat; //outline
 
 	DirectionalLight light;
 	DirectionalLight light2;
 
 	PointLight pointLight1;
+	PointLight pointLight2;
 
 
 	ID3D11ShaderResourceView* checkerSRV;
 	ID3D11ShaderResourceView* rainbowSRV;
 	ID3D11ShaderResourceView* levelSRV;
+	ID3D11ShaderResourceView* outlineSRV;
 
 	ID3D11SamplerState* sampleState;
 
@@ -92,5 +95,8 @@ private:
 	//vertex and pixel shader
 	SimpleVertexShader* ppVS;
 	SimplePixelShader* ppPS;
+
+	//outline stuff
+	ID3D11RasterizerState* invRasterState;
 };
 
