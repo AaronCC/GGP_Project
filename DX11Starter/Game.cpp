@@ -217,7 +217,7 @@ void Game::LoadShaders()
 
 	//create inverted rasterizer state
 	D3D11_RASTERIZER_DESC rasDesc = {};
-	rasDesc.FillMode = D3D11_FILL_WIREFRAME;	// draw solid
+	rasDesc.FillMode = D3D11_FILL_SOLID;	// draw solid
 	rasDesc.CullMode = D3D11_CULL_FRONT;	// draw the inside faces
 	rasDesc.DepthClipEnable = true;
 
@@ -306,15 +306,15 @@ void Game::Draw(float deltaTime, float totalTime)
 		1.0f,
 		0);
 
-	pixelShader->SetData(
-		"light",	//Name of the (eventual) variable in the shader 
-		&light,		//address of the data to copy
-		sizeof(DirectionalLight));	//size of data to copy
+	//pixelShader->SetData(
+	//	"light",	//Name of the (eventual) variable in the shader 
+	//	&light,		//address of the data to copy
+	//	sizeof(DirectionalLight));	//size of data to copy
 
-	pixelShader->SetData(
-		"light2",	//Name of the (eventual) variable in the shader 
-		&light2,		//address of the data to copy
-		sizeof(DirectionalLight));	//size of data to copy
+	//pixelShader->SetData(
+	//	"light2",	//Name of the (eventual) variable in the shader 
+	//	&light2,		//address of the data to copy
+	//	sizeof(DirectionalLight));	//size of data to copy
 
 	//pass point light to the pixel shader
 	pixelShader->SetData(

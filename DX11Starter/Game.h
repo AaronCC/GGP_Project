@@ -70,8 +70,8 @@ private:
 	Materials* level_mat; //level
 	Materials* outline_mat; //outline
 
-	DirectionalLight light;
-	DirectionalLight light2;
+	//DirectionalLight light;
+	//DirectionalLight light2;
 
 	PointLight pointLight1;
 	PointLight pointLight2;

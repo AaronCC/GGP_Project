@@ -14,7 +14,7 @@ Player::Player(Level * level, Materials* material, Materials* outlineMat, ID3D11
 	entity->SetTranslation(loc.x, loc.y, 0.f);
 
 	outlineEntity->SetTranslation(loc.x, loc.y, 0.f);
-	outlineEntity->SetScale(1.5f, 1.5f, 1.5f);
+	outlineEntity->SetScale(2.0f, 2.0f, 2.0f);
 	outlineEntity->UpdateMatrix();
 
 	cooldown = COOLDOWN;
@@ -84,6 +84,8 @@ void Player::Update(float deltaTime, float totalTime)
 	entity->SetTranslation(loc.x, loc.y, 0.f);
 	entity->UpdateMatrix();
 
+	float sv = (ammo * 0.1) + 1;
 	outlineEntity->SetTranslation(loc.x, loc.y, 0.f);
+	outlineEntity->SetScale(sv, sv, sv);
 	outlineEntity->UpdateMatrix();
 }
