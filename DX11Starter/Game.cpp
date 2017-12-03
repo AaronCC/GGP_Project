@@ -244,6 +244,19 @@ void Game::CreateMatrices()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
+	Vertex vertices[] =		//(pos)(norm)(uv)
+	{
+		{ XMFLOAT3(-100.0f, +100.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) }, //Top Left
+		{ XMFLOAT3(+100.0f, +100.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(1,0) }, //Top Right
+		{ XMFLOAT3(+100.0f, -100.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(1,1) }, //Bot Right
+		{ XMFLOAT3(-100.0f, -100.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,1) }  //Bot Left
+	};
+
+	int indices[] = { 0,1,2,2,3,0 };
+
+	skyPlaneMesh = new Mesh(&vertices[0], 4, &indices[0], 6, device);
+	skyPlaneEntity = new Entity(skyPlaneMesh, rainbow_mat);
+
 }
 
 
@@ -281,6 +294,7 @@ void Game::Update(float deltaTime, float totalTime)
 	//update game objects
 	level->Update(deltaTime, totalTime);
 	player->Update(deltaTime, totalTime);
+	skyPlaneEntity->UpdateMatrix();
 }
 
 // --------------------------------------------------------
@@ -334,6 +348,9 @@ void Game::Draw(float deltaTime, float totalTime)
 		sizeof(XMFLOAT3));
 
 	pixelShader->CopyAllBufferData();
+
+	//draw the skyPlane
+	//skyPlaneEntity->Draw()
 
 	//get vector of lanes
 	std::vector<Lane*>* lanes = level->getLanes();

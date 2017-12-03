@@ -98,5 +98,9 @@ private:
 
 	//outline stuff
 	ID3D11RasterizerState* invRasterState;
+
+	//SkyPlane stuff
+	Mesh* skyPlaneMesh;
+	Entity* skyPlaneEntity;
 };
 
