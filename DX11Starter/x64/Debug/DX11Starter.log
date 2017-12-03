@@ -1,8 +1,12 @@
-﻿  Game.cpp
+﻿  compilation object save succeeded; see G:\GGP_Repo\GGP_Project\x64\Debug\PixelShader.cso
+  Game.cpp
 g:\ggp_repo\ggp_project\dx11starter\level.h(19): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
 g:\ggp_repo\ggp_project\dx11starter\game.cpp(440): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
 g:\ggp_repo\ggp_project\dx11starter\game.cpp(456): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
 g:\ggp_repo\ggp_project\dx11starter\game.cpp(472): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
 g:\ggp_repo\ggp_project\dx11starter\game.cpp(527): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  Main.cpp
   DX11Starter.vcxproj -> G:\GGP_Repo\GGP_Project\x64\Debug\DX11Starter.exe
   DX11Starter.vcxproj -> G:\GGP_Repo\GGP_Project\x64\Debug\DX11Starter.pdb (Partial PDB)
