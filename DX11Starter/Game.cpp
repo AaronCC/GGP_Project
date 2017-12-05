@@ -15,8 +15,8 @@ Game::Game(HINSTANCE hInstance)
 	: DXCore(
 		hInstance,		   // The application's handle
 		"DirectX Game",	   // Text for the window's title bar
-		1000,			   // Width of the window's client area
-		1000,			   // Height of the window's client area
+		800,			   // Width of the window's client area
+		800,			   // Height of the window's client area
 		true)			   // Show extra stats (fps) in title bar?
 {
 	// Initialize fields
@@ -26,6 +26,9 @@ Game::Game(HINSTANCE hInstance)
 	pixelShader = 0;
 
 	Cam = new Camera();
+
+	skyPlaneMesh = 0;
+	skyPlaneEntity = 0;
 
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
@@ -56,6 +59,10 @@ Game::~Game()
 	delete rainbow_mat;
 	delete level_mat;
 	delete outline_mat;
+	
+	//Clean up the skyplane
+	delete skyPlaneMesh;
+	delete skyPlaneEntity;
 
 	//Level1->~Level();
 	delete level;
@@ -88,7 +95,7 @@ void Game::Init()
 	//  - You'll be expanding and/or replacing these later
 	LoadShaders();
 	CreateMatrices();
-	//CreateBasicGeometry(); //deprecated
+	CreateBasicGeometry(); //needed for skyplane
 
 	light.AmbientColor = XMFLOAT4(0.0, 0.0, 0.0, 1.0);
 	light.DiffuseColor = XMFLOAT4(1, 0, 0, 1);
@@ -246,15 +253,15 @@ void Game::CreateBasicGeometry()
 {
 	Vertex vertices[] =		//(pos)(norm)(uv)
 	{
-		{ XMFLOAT3(-100.0f, +100.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) }, //Top Left
-		{ XMFLOAT3(+100.0f, +100.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(1,0) }, //Top Right
-		{ XMFLOAT3(+100.0f, -100.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(1,1) }, //Bot Right
-		{ XMFLOAT3(-100.0f, -100.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,1) }  //Bot Left
+		{ XMFLOAT3(-50.0f, +50.0f, +75.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) }, //Top Left
+		{ XMFLOAT3(+50.0f, +50.0f, +75.0f), XMFLOAT3(0,0,-1), XMFLOAT2(1,0) }, //Top Right
+		{ XMFLOAT3(+50.0f, -50.0f, +75.0f), XMFLOAT3(0,0,-1), XMFLOAT2(1,1) }, //Bot Right
+		{ XMFLOAT3(-50.0f, -50.0f, +75.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,1) }  //Bot Left
 	};
 
 	int indices[] = { 0,1,2,2,3,0 };
 
-	skyPlaneMesh = new Mesh(&vertices[0], 4, &indices[0], 6, device);
+	skyPlaneMesh = new Mesh(vertices, 4, indices, 6, device);
 	skyPlaneEntity = new Entity(skyPlaneMesh, rainbow_mat);
 
 }
@@ -294,7 +301,7 @@ void Game::Update(float deltaTime, float totalTime)
 	//update game objects
 	level->Update(deltaTime, totalTime);
 	player->Update(deltaTime, totalTime);
-	skyPlaneEntity->UpdateMatrix();
+	skyPlaneEntity->UpdateMatrix(); 
 }
 
 // --------------------------------------------------------
@@ -350,7 +357,8 @@ void Game::Draw(float deltaTime, float totalTime)
 	pixelShader->CopyAllBufferData();
 
 	//draw the skyPlane
-	//skyPlaneEntity->Draw()
+	skyPlaneEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), 
+		skyPlaneMesh, sampleState); 
 
 	//get vector of lanes
 	std::vector<Lane*>* lanes = level->getLanes();
