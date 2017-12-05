@@ -69,6 +69,7 @@ private:
 	Materials* rainbow_mat; //rainbow
 	Materials* level_mat; //level
 	Materials* outline_mat; //outline
+	Materials* skyPlane_mat; //skyPlane
 
 	DirectionalLight light;
 	DirectionalLight light2;
@@ -81,6 +82,7 @@ private:
 	ID3D11ShaderResourceView* rainbowSRV;
 	ID3D11ShaderResourceView* levelSRV;
 	ID3D11ShaderResourceView* outlineSRV;
+	ID3D11ShaderResourceView* skyPlaneSRV;
 
 	ID3D11SamplerState* sampleState;
 

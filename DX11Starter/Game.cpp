@@ -59,6 +59,7 @@ Game::~Game()
 	delete rainbow_mat;
 	delete level_mat;
 	delete outline_mat;
+	delete skyPlane_mat;
 	
 	//Clean up the skyplane
 	delete skyPlaneMesh;
@@ -73,6 +74,7 @@ Game::~Game()
 	levelSRV->Release();
 	outlineSRV->Release();
 	sampleState->Release();
+	skyPlaneSRV->Release();
 
 	//clean up post process stuff
 	ppSRV->Release();
@@ -171,6 +173,7 @@ void Game::LoadShaders()
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow.png", 0, &rainbowSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/level.png", 0, &levelSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/gold.png", 0, &outlineSRV);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/starBG.gif", 0, &skyPlaneSRV);
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -186,6 +189,7 @@ void Game::LoadShaders()
 	rainbow_mat = new Materials(pixelShader, vertexShader, rainbowSRV, sampleState);
 	level_mat = new Materials(pixelShader, vertexShader, levelSRV, sampleState);
 	outline_mat = new Materials(pixelShader, vertexShader, outlineSRV, sampleState);
+	skyPlane_mat = new Materials(pixelShader, vertexShader, skyPlaneSRV, sampleState);
 
 	// set up post processing resources
 	D3D11_TEXTURE2D_DESC textureDesc = {};
@@ -262,7 +266,7 @@ void Game::CreateBasicGeometry()
 	int indices[] = { 0,1,2,2,3,0 };
 
 	skyPlaneMesh = new Mesh(vertices, 4, indices, 6, device);
-	skyPlaneEntity = new Entity(skyPlaneMesh, rainbow_mat);
+	skyPlaneEntity = new Entity(skyPlaneMesh, skyPlane_mat);
 
 }
 
@@ -310,7 +314,8 @@ void Game::Update(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
-	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	//const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	const float color[4] = { 0.8f, 0.8f, 0.8f, 0.0f }; //new grey color
 
 	//post processing - swap render target to texture2d
 	context->OMSetRenderTargets(1, &ppRTV, depthStencilView);
