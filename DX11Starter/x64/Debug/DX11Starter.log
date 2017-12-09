@@ -1,6 +1,6 @@
 ﻿  Game.cpp
 g:\ggp_repo\ggp_project\dx11starter\level.h(19): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-g:\ggp_repo\ggp_project\dx11starter\game.cpp(491): warning C4305: 'argument': truncation from 'double' to 'float'
+g:\ggp_repo\ggp_project\dx11starter\game.cpp(495): warning C4305: 'argument': truncation from 'double' to 'float'
 g:\ggp_repo\ggp_project\dx11starter\game.cpp(628): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
 g:\ggp_repo\ggp_project\dx11starter\game.cpp(644): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
 g:\ggp_repo\ggp_project\dx11starter\game.cpp(660): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data

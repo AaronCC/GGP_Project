@@ -349,6 +349,10 @@ void Game::Draw(float deltaTime, float totalTime)
 	//const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
 	const float color[4] = { 0.8f, 0.8f, 0.8f, 0.0f }; //new grey color
 
+	//turn off all srv's to avoid input/output clashing
+	ID3D11ShaderResourceView* nullSRVs[16] = {};
+	context->PSSetShaderResources(0, 16, nullSRVs);
+
 	//first draw everything to ppRTV
 	//post processing - swap render target to texture2d
 	context->OMSetRenderTargets(1, &ppRTV, depthStencilView);
@@ -436,7 +440,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	context->RSSetState(0);	//reset renderstate
 
 
-
+	context->PSSetShaderResources(0, 16, nullSRVs);
 
 	//post processing
 	//chromatic aberration
@@ -445,7 +449,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	context->ClearRenderTargetView(ABloom_RTV, color);
 
 	//draw with the post process shaders
-	ppVS->SetShader(); // banana = do i need this or is this only necessary in the final step of post procesing?
+	ppVS->SetShader(); 
 	ppPS->SetShader();
 
 	//send in chromatic aberration value
@@ -467,7 +471,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	context->Draw(3, 0);
 
 
-
+	context->PSSetShaderResources(0, 16, nullSRVs);
 
 
 	//now bloom
@@ -502,7 +506,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	context->Draw(3, 0);
 
 
-
+	context->PSSetShaderResources(0, 16, nullSRVs);
 
 
 
@@ -533,7 +537,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	context->Draw(3, 0);
 
 
-
+	context->PSSetShaderResources(0, 16, nullSRVs);
 
 
 	//third step = blur vertically
@@ -562,6 +566,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	context->Draw(3, 0);
 
 
+	context->PSSetShaderResources(0, 16, nullSRVs);
 
 
 	//fourth step = combine
@@ -588,11 +593,6 @@ void Game::Draw(float deltaTime, float totalTime)
 	context->Draw(3, 0);
 
 
-
-
-
-	//turn off all srv's to avoid input/output clashing
-	ID3D11ShaderResourceView* nullSRVs[16] = {};
 	context->PSSetShaderResources(0, 16, nullSRVs);
 
 	// Present the back buffer to the user
