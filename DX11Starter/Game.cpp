@@ -82,6 +82,13 @@ Game::~Game()
 	delete ppPS;
 	delete ppVS;
 
+	ABloom_SRV->Release();
+	ABloom_RTV->Release();
+	BBloom_SRV->Release();
+	BBloom_RTV->Release();
+	delete BloomPS;
+	delete BloomVS;
+
 	//clean up outline stuff
 	invRasterState->Release();
 }
@@ -169,6 +176,14 @@ void Game::LoadShaders()
 	ppPS = new SimplePixelShader(device, context);
 	ppPS->LoadShaderFile(L"PP_PS.cso");
 
+	//bloom post process shaders
+	BloomVS = new SimpleVertexShader(device, context);
+	BloomVS->LoadShaderFile(L"Bloom_VS.cso");
+
+	BloomPS = new SimplePixelShader(device, context);
+	BloomPS->LoadShaderFile(L"Bloom_PS.cso");
+
+
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.png", 0, &checkerSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow.png", 0, &rainbowSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/level.png", 0, &levelSRV);
@@ -217,6 +232,16 @@ void Game::LoadShaders()
 
 	device->CreateRenderTargetView(ppTexture, &rtvDesc, &ppRTV);
 
+	//create 2 tex2d's for bloom post process
+	ID3D11Texture2D* bloomTextureA;
+	device->CreateTexture2D(&textureDesc, 0, &bloomTextureA);
+	device->CreateRenderTargetView(bloomTextureA, &rtvDesc, &ABloom_RTV);
+
+	ID3D11Texture2D* bloomTextureB;
+	device->CreateTexture2D(&textureDesc, 0, &bloomTextureB);
+	device->CreateRenderTargetView(bloomTextureB, &rtvDesc, &BBloom_RTV);
+
+
 	// Create the Shader Resource View
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format = textureDesc.Format;
@@ -225,6 +250,10 @@ void Game::LoadShaders()
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 
 	device->CreateShaderResourceView(ppTexture, &srvDesc, &ppSRV);
+
+	//srv's for bloom
+	device->CreateShaderResourceView(bloomTextureA, &srvDesc, &ABloom_SRV);
+	device->CreateShaderResourceView(bloomTextureB, &srvDesc, &BBloom_SRV);
 
 	//create inverted rasterizer state
 	D3D11_RASTERIZER_DESC rasDesc = {};
@@ -236,6 +265,9 @@ void Game::LoadShaders()
 
 	//release the texture because it is now useless
 	ppTexture->Release();
+	//bloom
+	bloomTextureA->Release();
+	bloomTextureB->Release();
 }
 
 
@@ -251,7 +283,7 @@ void Game::CreateMatrices()
 
 
 // --------------------------------------------------------
-// Creates the geometry we're going to draw - deprecated
+// Creates the geometry we're going to draw
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
@@ -317,6 +349,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	//const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
 	const float color[4] = { 0.8f, 0.8f, 0.8f, 0.0f }; //new grey color
 
+	//first draw everything to ppRTV
 	//post processing - swap render target to texture2d
 	context->OMSetRenderTargets(1, &ppRTV, depthStencilView);
 
@@ -325,6 +358,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	//  - Do this ONCE PER FRAME
 	//  - At the beginning of Draw (before drawing *anything*)
 	context->ClearRenderTargetView(ppRTV, color);
+	context->ClearRenderTargetView(ABloom_RTV, color);
 	context->ClearRenderTargetView(backBufferRTV, color);
 	context->ClearDepthStencilView(
 		depthStencilView,
@@ -401,20 +435,18 @@ void Game::Draw(float deltaTime, float totalTime)
 	playerEntityOutline->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntityOutline->mesh, sampleState); 
 	context->RSSetState(0);	//reset renderstate
 
+
+
+
 	//post processing
-	//set render target back to backbuffer + clear it
-	context->OMSetRenderTargets(1, &backBufferRTV, 0);
-	context->ClearRenderTargetView(backBufferRTV, color);
+	//chromatic aberration
+	//set render target to Bloom's rtv + clear it
+	context->OMSetRenderTargets(1, &ABloom_RTV, 0);
+	context->ClearRenderTargetView(ABloom_RTV, color);
 
 	//draw with the post process shaders
-	ppVS->SetShader();
+	ppVS->SetShader(); // banana = do i need this or is this only necessary in the final step of post procesing?
 	ppPS->SetShader();
-
-	//send in extra data to pixel shader here
-	//set up for blur right now
-	//ppPS->SetFloat("pixelWidth", 1.0f / width);
-	//ppPS->SetFloat("pixelHeight", 1.0f / height);
-	//ppPS->SetInt("blurAmount", 2);
 
 	//send in chromatic aberration value
 	ppPS->SetFloat("SplitIntensity", CroAbb);
@@ -422,6 +454,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	ppPS->SetShaderResourceView("Pixels", ppSRV);
 	ppPS->SetSamplerState("Sampler", sampleState);
+
 
 	//disable vertex and index buffer
 	ID3D11Buffer* nullBuffer = 0;
@@ -432,6 +465,131 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	//draw 3 verts - the triangle that will cover the screen
 	context->Draw(3, 0);
+
+
+
+
+
+	//now bloom
+	int BlurAmount = 12;
+
+	//first step = extract bright pixels from ABloomRTV into BBloomRTV
+	//set render target to BBloomRTV + clear it
+	context->OMSetRenderTargets(1, &BBloom_RTV, 0);
+	context->ClearRenderTargetView(BBloom_RTV, color);
+
+	////go down the bloom shader rabbit hole - first extract bright pixels
+	BloomVS->SetShader();
+	BloomPS->SetShader();
+
+	//send in extra data to pixel shader here
+	//let the bloom PS know which task it's on - task 1
+	float PassButter = 0;
+	BloomPS->SetFloat("Purpose", PassButter);
+
+	//send in desaturation intensity 0-1
+	BloomPS->SetFloat("DesatVal", 0.7);
+	BloomPS->CopyAllBufferData();
+
+	BloomPS->SetShaderResourceView("Pixels", ABloom_SRV);
+	BloomPS->SetSamplerState("Sampler", sampleState);
+
+	//disable vertex and index buffer
+	context->IASetVertexBuffers(0, 1, &nullBuffer, &stride, &offset);
+	context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+
+	//draw 3 verts - the triangle that will cover the screen
+	context->Draw(3, 0);
+
+
+
+
+
+
+	//second step = blur horizontally
+	//set render target to BBloomRTV + clear it
+	context->OMSetRenderTargets(1, &ppRTV, 0);
+	context->ClearRenderTargetView(ppRTV, color);
+
+	//send in extra data to pixel shader here
+	//let the bloom PS know which task it's on
+	PassButter = 1;
+	BloomPS->SetFloat("Purpose", PassButter);
+
+	//set up for blur
+	BloomPS->SetFloat("PixelWidth", 1.0f / width);
+	//ppPS->SetFloat("pixelHeight", 1.0f / height);
+	BloomPS->SetInt("BlurAmount", BlurAmount);
+
+	BloomPS->CopyAllBufferData();
+
+	BloomPS->SetShaderResourceView("Pixels", BBloom_SRV);
+
+	//disable vertex and index buffer
+	context->IASetVertexBuffers(0, 1, &nullBuffer, &stride, &offset);
+	context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+
+	//draw 3 verts - the triangle that will cover the screen
+	context->Draw(3, 0);
+
+
+
+
+
+	//third step = blur vertically
+	//set render target to BBloom_RTV + clear it
+	context->OMSetRenderTargets(1, &BBloom_RTV, 0);
+	context->ClearRenderTargetView(BBloom_RTV, color);
+
+	//send in extra data to pixel shader here
+	//let the bloom PS know which task it's on
+	PassButter = 2;
+	BloomPS->SetFloat("Purpose", PassButter);
+
+	//set up for blur
+	BloomPS->SetFloat("PixelHeight", 1.0f / width);
+	BloomPS->SetInt("BlurAmount", BlurAmount);
+
+	BloomPS->CopyAllBufferData();
+
+	BloomPS->SetShaderResourceView("Pixels", ppSRV);
+
+	//disable vertex and index buffer
+	context->IASetVertexBuffers(0, 1, &nullBuffer, &stride, &offset);
+	context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+
+	//draw 3 verts - the triangle that will cover the screen
+	context->Draw(3, 0);
+
+
+
+
+	//fourth step = combine
+	//set render target to backbuffer + clear it
+	context->OMSetRenderTargets(1, &backBufferRTV, 0);
+	context->ClearRenderTargetView(backBufferRTV, color);
+
+	//send in extra data to pixel shader here
+	//let the bloom PS know which task it's on
+	PassButter = 3;
+	BloomPS->SetFloat("Purpose", PassButter);
+
+	//set up for blur
+	BloomPS->CopyAllBufferData();
+
+	BloomPS->SetShaderResourceView("Pixels", BBloom_SRV);
+	BloomPS->SetShaderResourceView("Pixels2", ABloom_SRV);
+
+	//disable vertex and index buffer
+	context->IASetVertexBuffers(0, 1, &nullBuffer, &stride, &offset);
+	context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+
+	//draw 3 verts - the triangle that will cover the screen
+	context->Draw(3, 0);
+
+
+
+
 
 	//turn off all srv's to avoid input/output clashing
 	ID3D11ShaderResourceView* nullSRVs[16] = {};

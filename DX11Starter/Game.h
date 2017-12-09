@@ -90,13 +90,24 @@ private:
 	//Entity* backDrop;
 
 	// Post process stuff
-	//render trget view - draw to this
+	//render target view - draw to this
 	ID3D11RenderTargetView* ppRTV;
 	//shader rexource view - draw from this
 	ID3D11ShaderResourceView* ppSRV;
-	//vertex and pixel shader
+	//vertex and pixel shader for chromactic aberration
 	SimpleVertexShader* ppVS;
 	SimplePixelShader* ppPS;
+
+
+	//render target view - draw to this
+	ID3D11RenderTargetView* ABloom_RTV;
+	ID3D11RenderTargetView* BBloom_RTV;
+	//shader rexource view - draw from this
+	ID3D11ShaderResourceView* ABloom_SRV;
+	ID3D11ShaderResourceView* BBloom_SRV;
+	//vs and ps for bloom
+	SimpleVertexShader* BloomVS;
+	SimplePixelShader* BloomPS;
 
 	//outline stuff
 	ID3D11RasterizerState* invRasterState;
