@@ -33,6 +33,7 @@ private:
 	XMFLOAT2 pos; // X and Y of the lane
 	float depth;
 	float aberrateTimer;
+	float respawnTimer;
 
 
 

@@ -8,6 +8,7 @@ Lane::Lane(XMFLOAT2 pos, float depth, int maxEnemies, Materials * enemyMat, Mate
 	this->pos = pos;
 	this->depth = depth;
 	this->aberrateTimer = 0.0;
+	this->respawnTimer = 0.0f;
 
 	this->maxEnemies = maxEnemies;
 	this->spawnedEnemies = 0;
@@ -42,10 +43,16 @@ void Lane::Update(float deltaTime, float totalTime, float random)
 
 	//spawn enemies
 	//put a cap on how many spawn
-	if (random == 1 && spawnedEnemies < maxEnemies)
+	if (random == 1 && spawnedEnemies < maxEnemies && respawnTimer <= 0.0f)
 	{
 		SpawnEnemy();
 		spawnedEnemies++;
+
+		respawnTimer += 1.0; // wait this long before you can spawn another enemy
+
+		aberrateTimer += 0.3; // when an enemy spawns, aberrate a little bit
+		if (aberrateTimer >= 0.5) // cap the timer
+			aberrateTimer = 0.5;
 	}
 
 	//update each enemy in lane
@@ -103,8 +110,13 @@ void Lane::Update(float deltaTime, float totalTime, float random)
 	}
 
 	//if the timer is non-zero, decrement the timer
-	if(aberrateTimer > 0.0) {;
+	if(aberrateTimer > 0.0) {
 		aberrateTimer -= deltaTime;
+	}
+
+	//delay respawning so you dont get stacked enemies
+	if (respawnTimer > 0.0) {
+		respawnTimer -= deltaTime;
 	}
 
 	//bargain bin collision
