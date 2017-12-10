@@ -1,5 +1,7 @@
 #include "Game.h"
 
+#define MAX_LEVEL_INDEX 3
+
 // For the DirectX Math library
 using namespace DirectX;
 
@@ -60,7 +62,7 @@ Game::~Game()
 	delete level_mat;
 	delete outline_mat;
 	delete skyPlane_mat;
-	
+
 	//Clean up the skyplane
 	delete skyPlaneMesh;
 	delete skyPlaneEntity;
@@ -337,7 +339,7 @@ void Game::Update(float deltaTime, float totalTime)
 	//update game objects
 	level->Update(deltaTime, totalTime);
 	player->Update(deltaTime, totalTime);
-	skyPlaneEntity->UpdateMatrix(); 
+	skyPlaneEntity->UpdateMatrix();
 }
 
 // --------------------------------------------------------
@@ -400,8 +402,8 @@ void Game::Draw(float deltaTime, float totalTime)
 	pixelShader->CopyAllBufferData();
 
 	//draw the skyPlane
-	skyPlaneEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), 
-		skyPlaneMesh, sampleState); 
+	skyPlaneEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(),
+		skyPlaneMesh, sampleState);
 
 	//get vector of lanes
 	std::vector<Lane*>* lanes = level->getLanes();
@@ -436,7 +438,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	//draw the player outline
 	Entity* playerEntityOutline = player->getOutlineEntity();	//get the player entity - scaled up in player
 	context->RSSetState(invRasterState);				//set render state to new rasterizer
-	playerEntityOutline->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntityOutline->mesh, sampleState); 
+	playerEntityOutline->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntityOutline->mesh, sampleState);
 	context->RSSetState(0);	//reset renderstate
 
 
@@ -449,7 +451,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	context->ClearRenderTargetView(ABloom_RTV, color);
 
 	//draw with the post process shaders
-	ppVS->SetShader(); 
+	ppVS->SetShader();
 	ppPS->SetShader();
 
 	//send in chromatic aberration value
@@ -608,7 +610,9 @@ void Game::CreateLevel(const UINT stage, const float variance, const float depth
 		delete level;
 	}
 
-	level = new Level(level_mat);
+	if (stage <= MAX_LEVEL_INDEX)
+		level = new Level(level_mat);
+
 	if (stage == 1) {
 		//remake the level
 		//set the level variables
