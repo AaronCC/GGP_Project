@@ -59,6 +59,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 {
 	float4 surfaceColor = diffuseTexture.Sample(basicSampler, input.uv);
 
+	//alpha clipping
 	if (surfaceColor.a < 0.2f)
 		discard;
 
@@ -87,19 +88,22 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 dirToPointLight2 = normalize(pointLight2.PL_Position - input.worldPos);
 	float pointLight2Amount = saturate(dot(input.normal, dirToPointLight2));
 
-	/*
+	
 	// point light shiny bit - currently unused
 	//calc reflection vector of incoming light
 	float3 refl = reflect(-dirToPointLight, input.normal);
+	float3 refl2 = reflect(-dirToPointLight2, input.normal);
 	// Direction to the camera from the current pixel
 	float3 dirToCamera = normalize(CameraPosition - input.worldPos);
 	//Specular shiny spot
 	float pointLightSpecular = pow(saturate(dot(refl, dirToCamera)), 64);
-	*/
+	float pointLight2Specular = pow(saturate(dot(refl2, dirToCamera)), 64);
 
 	lightsOut += 
 		(pointLight1.PL_Color * pointLightAmount) +
-		(pointLight2.PL_Color * pointLight2Amount);
+		(pointLight2.PL_Color * pointLight2Amount) +
+		(pointLightSpecular) +
+		(pointLight2Specular);
 
 	//return float4(surfaceColor.yyy, 1.0f);
 	return surfaceColor * lightsOut;

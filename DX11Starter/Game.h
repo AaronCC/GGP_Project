@@ -112,6 +112,9 @@ private:
 	//outline stuff
 	ID3D11RasterizerState* invRasterState;
 
+	//blend stuff
+	ID3D11BlendState* blendState;
+
 	//SkyPlane stuff
 	Mesh* skyPlaneMesh;
 	Entity* skyPlaneEntity;
