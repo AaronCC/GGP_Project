@@ -172,7 +172,7 @@ void Game::Init()
 	CreateLevel(this->stage, 8.f, 75.f, 8.f, 4);
 
 	// Create Player
-	this->player = new Player(level, rainbow_mat, outline_mat, device);
+	this->player = new Player(level, checker_mat, outline_mat, device);
 
 	//create backdrop
 	//backDrop = new Entity();
@@ -286,7 +286,7 @@ void Game::LoadShaders()
 
 	//create inverted rasterizer state
 	D3D11_RASTERIZER_DESC rasDesc = {};
-	rasDesc.FillMode = D3D11_FILL_SOLID;	// draw solid
+	rasDesc.FillMode = D3D11_FILL_WIREFRAME;	// draw solid
 	rasDesc.CullMode = D3D11_CULL_FRONT;	// draw the inside faces
 	rasDesc.DepthClipEnable = true;
 

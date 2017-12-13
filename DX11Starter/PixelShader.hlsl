@@ -120,14 +120,18 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float pointLightS2Specular = pow(saturate(dot(reflS2, dirToCamera)), 64);
 	float pointLightS3Specular = pow(saturate(dot(reflS3, dirToCamera)), 64);
 
-	lightsOut += 
+	//lights in the level
+	lightsOut +=
 		(pointLight1.PL_Color * pointLightAmount) +
 		(pointLight2.PL_Color * pointLight2Amount) +
+		(pointLightSpecular)+
+		(pointLight2Specular);
+
+	//lights for the skyplane
+	lightsOut +=
 		(skyLight1.PL_Color * pointLightS1Amount) +
 		(skyLight2.PL_Color * pointLightS2Amount) +
 		(skyLight3.PL_Color * pointLightS3Amount) +
-		(pointLightSpecular) +
-		(pointLight2Specular) +
 		(pointLightS1Specular) +
 		(pointLightS2Specular) +
 		(pointLightS3Specular);

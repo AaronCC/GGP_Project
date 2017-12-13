@@ -129,7 +129,7 @@ void Level::Update(float deltaTime, float totalTime)
 
 	if (IsLevelClear())
 	{
-		this->getEntity()->Move(0.f, 0.f, -25.f * deltaTime);
+		this->getEntity()->Move(0.f, 0.f, -45.f * deltaTime);
 		if (this->getEntity()->GetPosition().z <= -90.f)
 			levelClear = true;
 	}
