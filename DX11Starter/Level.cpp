@@ -113,7 +113,12 @@ void Level::genLevel(ID3D11Device*	device,
 
 void Level::Update(float deltaTime, float totalTime)
 {
-	levelClear = IsLevelClear();
+	if (IsLevelClear())
+	{
+		this->getEntity()->Move(0.f, 0.f, -25.f * deltaTime);
+		if (this->getEntity()->GetPosition().z <= -90.f)
+			levelClear = true;
+	}
 
 	//update all the lanes
 	for each(Lane* lane in lanes)

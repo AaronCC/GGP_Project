@@ -1,9 +1,7 @@
-﻿  Game.cpp
+﻿  Level.cpp
 c:\users\aaron\documents\projects\ggp_project\ggp_project\dx11starter\level.h(19): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-c:\users\aaron\documents\projects\ggp_project\ggp_project\dx11starter\game.cpp(558): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\aaron\documents\projects\ggp_project\ggp_project\dx11starter\game.cpp(693): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-c:\users\aaron\documents\projects\ggp_project\ggp_project\dx11starter\game.cpp(709): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-c:\users\aaron\documents\projects\ggp_project\ggp_project\dx11starter\game.cpp(725): warning C4244: 'argument': conversion from 'const float' to 'const int', possible loss of data
-c:\users\aaron\documents\projects\ggp_project\ggp_project\dx11starter\game.cpp(780): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+c:\users\aaron\documents\projects\ggp_project\ggp_project\dx11starter\level.cpp(10): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\aaron\documents\projects\ggp_project\ggp_project\dx11starter\level.cpp(27): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\aaron\documents\projects\ggp_project\ggp_project\dx11starter\level.cpp(130): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   DX11Starter.vcxproj -> C:\Users\Aaron\Documents\Projects\GGP_Project\GGP_Project\x64\Debug\DX11Starter.exe
   DX11Starter.vcxproj -> C:\Users\Aaron\Documents\Projects\GGP_Project\GGP_Project\x64\Debug\DX11Starter.pdb (Partial PDB)

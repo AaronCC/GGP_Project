@@ -18,6 +18,7 @@ public:
 	DirectX::XMFLOAT3 GetRotation();
 	DirectX::XMFLOAT3 GetScale();
 	void SetTranslation(float _x, float _y, float _z);
+	void Move(float _x, float _y, float _z);
 	void SetRotation(float _x, float _y, float _z);
 	void SetScale(float _x, float _y, float _z);
 	void UpdateMatrix();

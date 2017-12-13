@@ -46,6 +46,12 @@ void Entity::SetTranslation(float _x, float _y, float _z)
 	position = XMFLOAT3(_x,_y,_z);
 }
 
+void Entity::Move(float _x, float _y, float _z)
+{
+	position = XMFLOAT3(this->position.x + _x,this->position.y + _y,this->position.z + _z);
+	this->UpdateMatrix();
+}
+
 void Entity::SetRotation(float _x, float _y, float _z)
 {
 	rotation = XMFLOAT3(rotation.x + _x, rotation.y + _y, rotation.z + _z);

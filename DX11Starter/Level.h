@@ -26,8 +26,6 @@ public:
 
 	void Update(float deltaTime, float totalTime);
 
-
-
 private:
 	std::vector<Lane*> lanes;
 	Entity* levelEntity;
