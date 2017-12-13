@@ -32,6 +32,15 @@ Game::Game(HINSTANCE hInstance)
 	skyPlaneMesh = 0;
 	skyPlaneEntity = 0;
 
+	horz1 = 0;
+	vert1 = 10;
+	horz2 = -10;
+	vert2 = 0;
+	horz3 = 10;
+	vert3 = -10;
+	deep = 50;
+
+
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
 	CreateConsoleWindow(500, 120, 32, 120);
@@ -124,6 +133,16 @@ void Game::Init()
 
 	pointLight2.PL_Position = XMFLOAT3(0, 0, -20); //put the light at origin
 	pointLight2.PL_Color = XMFLOAT4(1, 1, 1, 1);
+
+	skyLight1.PL_Position = XMFLOAT3(horz1, vert1, deep);
+	skyLight1.PL_Color = XMFLOAT4(1, 0, 0, 1);
+
+	skyLight2.PL_Position = XMFLOAT3(horz2, vert2, deep);
+	skyLight2.PL_Color = XMFLOAT4(0, 1, 0, 1);
+
+	skyLight3.PL_Position = XMFLOAT3(horz3, vert3, deep);
+	skyLight3.PL_Color = XMFLOAT4(0, 0, 1, 1);
+
 
 	//create the level
 	//level = new Level(level_mat);
@@ -320,7 +339,7 @@ void Game::CreateBasicGeometry()
 	int indices[] = { 0,1,2,2,3,0 };
 
 	skyPlaneMesh = new Mesh(vertices, 4, indices, 6, device);
-	skyPlaneEntity = new Entity(skyPlaneMesh, skyPlane_mat);
+	skyPlaneEntity = new Entity(skyPlaneMesh, skyPlane_mat); ///////////////////////////////////////////////
 
 }
 
@@ -413,6 +432,22 @@ void Game::Draw(float deltaTime, float totalTime)
 		&pointLight2,
 		sizeof(PointLight));
 
+	//skyLight stuff
+	pixelShader->SetData(
+		"skyLight1",
+		&skyLight1,
+		sizeof(PointLight));
+
+	pixelShader->SetData(
+		"skyLight2",
+		&skyLight2,
+		sizeof(PointLight));
+
+	pixelShader->SetData(
+		"skyLight3",
+		&skyLight3,
+		sizeof(PointLight));
+
 	//pass the cameras position to the camera
 	pixelShader->SetData(
 		"CameraPosition",
@@ -423,7 +458,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	//draw the skyPlane
 	skyPlaneEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(),
-		skyPlaneMesh, sampleState);
+	skyPlaneMesh, sampleState);
 
 	//get vector of lanes
 	std::vector<Lane*>* lanes = level->getLanes();

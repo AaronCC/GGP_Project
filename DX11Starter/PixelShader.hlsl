@@ -49,6 +49,10 @@ cbuffer externalData : register(b0)
 	PointLight pointLight1;
 	PointLight pointLight2;
 
+	PointLight skyLight1;
+	PointLight skyLight2;
+	PointLight skyLight3;
+
 	float3 CameraPosition;
 };
 
@@ -88,22 +92,45 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 dirToPointLight2 = normalize(pointLight2.PL_Position - input.worldPos);
 	float pointLight2Amount = saturate(dot(input.normal, dirToPointLight2));
 
+	// POINT LIGHT SKY
+	float3 dirToPointLightS1 = normalize(skyLight1.PL_Position - input.worldPos);
+	float pointLightS1Amount = saturate(dot(input.normal, dirToPointLightS1));
+
+	float3 dirToPointLightS2 = normalize(skyLight2.PL_Position - input.worldPos);
+	float pointLightS2Amount = saturate(dot(input.normal, dirToPointLightS2));
+
+	float3 dirToPointLightS3 = normalize(skyLight3.PL_Position - input.worldPos);
+	float pointLightS3Amount = saturate(dot(input.normal, dirToPointLightS3));
+
 	
 	// point light shiny bit - currently unused
 	//calc reflection vector of incoming light
 	float3 refl = reflect(-dirToPointLight, input.normal);
 	float3 refl2 = reflect(-dirToPointLight2, input.normal);
+	float3 reflS1 = reflect(-dirToPointLightS1, input.normal);
+	float3 reflS2 = reflect(-dirToPointLightS2, input.normal);
+	float3 reflS3 = reflect(-dirToPointLightS3, input.normal);
+
 	// Direction to the camera from the current pixel
 	float3 dirToCamera = normalize(CameraPosition - input.worldPos);
 	//Specular shiny spot
 	float pointLightSpecular = pow(saturate(dot(refl, dirToCamera)), 64);
 	float pointLight2Specular = pow(saturate(dot(refl2, dirToCamera)), 64);
+	float pointLightS1Specular = pow(saturate(dot(reflS1, dirToCamera)), 64);
+	float pointLightS2Specular = pow(saturate(dot(reflS2, dirToCamera)), 64);
+	float pointLightS3Specular = pow(saturate(dot(reflS3, dirToCamera)), 64);
 
 	lightsOut += 
 		(pointLight1.PL_Color * pointLightAmount) +
 		(pointLight2.PL_Color * pointLight2Amount) +
+		(skyLight1.PL_Color * pointLightS1Amount) +
+		(skyLight2.PL_Color * pointLightS2Amount) +
+		(skyLight3.PL_Color * pointLightS3Amount) +
 		(pointLightSpecular) +
-		(pointLight2Specular);
+		(pointLight2Specular) +
+		(pointLightS1Specular) +
+		(pointLightS2Specular) +
+		(pointLightS3Specular);
 
 	//return float4(surfaceColor.yyy, 1.0f);
 	return surfaceColor * lightsOut;

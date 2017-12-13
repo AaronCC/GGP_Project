@@ -77,6 +77,11 @@ private:
 	PointLight pointLight1;
 	PointLight pointLight2;
 
+	//skyplane lights
+	PointLight skyLight1;
+	PointLight skyLight2;
+	PointLight skyLight3;
+
 
 	ID3D11ShaderResourceView* checkerSRV;
 	ID3D11ShaderResourceView* rainbowSRV;
@@ -118,5 +123,14 @@ private:
 	//SkyPlane stuff
 	Mesh* skyPlaneMesh;
 	Entity* skyPlaneEntity;
+
+	//Skyplane Light stuff
+	float horz1;
+	float vert1;
+	float horz2;
+	float vert2;
+	float horz3;
+	float vert3;
+	float deep;
 };
 
