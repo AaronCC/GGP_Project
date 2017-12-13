@@ -32,5 +32,8 @@ private:
 	Mesh* levelMesh;
 	Materials* material;
 	bool levelClear;
+	bool loading;
+	const float loadTime = 1.5f;
+	float currentLoadTime = 0.f;
 };
 

@@ -60,6 +60,7 @@ void Entity::SetRotation(float _x, float _y, float _z)
 void Entity::SetScale(float _x, float _y, float _z)
 {
 	scale = XMFLOAT3(_x, _y, _z);
+	this->UpdateMatrix();
 }
 
 void Entity::UpdateMatrix()

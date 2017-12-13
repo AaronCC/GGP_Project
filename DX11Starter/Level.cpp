@@ -5,6 +5,7 @@ using namespace DirectX;
 
 Level::Level(Materials* mat)
 {
+	loading = true;
 	material = mat;
 	levelClear = false;
 	srand(time(NULL));
@@ -113,6 +114,19 @@ void Level::genLevel(ID3D11Device*	device,
 
 void Level::Update(float deltaTime, float totalTime)
 {
+	if (this->loading)
+	{
+		currentLoadTime += deltaTime;
+		float scale = 10 - (10 * (currentLoadTime / loadTime));
+		this->getEntity()->SetScale(scale,scale,1.f);
+		if (scale <= 1)
+		{
+			this->getEntity()->SetScale(1.f, 1.f, 1.f);
+			loading = false;
+		}
+		return;
+	}
+
 	if (IsLevelClear())
 	{
 		this->getEntity()->Move(0.f, 0.f, -25.f * deltaTime);

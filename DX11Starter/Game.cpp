@@ -84,7 +84,8 @@ Game::~Game()
 
 	particleSRV->Release();
 	checkerSRV->Release();
-	rainbowSRV->Release();
+	if (rainbowSRV)
+		rainbowSRV->Release();
 	levelSRV->Release();
 	outlineSRV->Release();
 	sampleState->Release();
@@ -462,7 +463,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	//draw the skyPlane
 	skyPlaneEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(),
-	skyPlaneMesh, sampleState);
+		skyPlaneMesh, sampleState);
 
 	//get vector of lanes
 	std::vector<Lane*>* lanes = level->getLanes();
@@ -492,7 +493,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	Entity* levelEntity = level->getEntity();
 	levelEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), levelEntity->mesh, sampleState);
-	
+
 	context->OMSetBlendState(0, factors, 0xFFFFFFFF);	//reset blendstate
 
 	//draw the player
