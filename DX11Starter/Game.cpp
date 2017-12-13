@@ -34,14 +34,6 @@ Game::Game(HINSTANCE hInstance)
 	wheelMesh = 0;
 	wheelEntity = 0;
 
-	horz1 = 0;
-	vert1 = 10;
-	horz2 = -10;
-	vert2 = 0;
-	horz3 = 10;
-	vert3 = -10;
-	deep = 50;
-
 
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
@@ -141,17 +133,17 @@ void Game::Init()
 	pointLight1.PL_Position = XMFLOAT3(0, 0, 32.5); //put the light at depth/2
 	pointLight1.PL_Color = XMFLOAT4(1, 1, 1, 1);
 
-	pointLight2.PL_Position = XMFLOAT3(0, 0, -20); //put the light at origin
+	pointLight2.PL_Position = XMFLOAT3(0, 0, -20); //put the light at cameraish
 	pointLight2.PL_Color = XMFLOAT4(1, 1, 1, 1);
 
-	skyLight1.PL_Position = XMFLOAT3(horz1, vert1, deep);
+	skyLight1.PL_Position = XMFLOAT3(0, 0, 75); 
 	skyLight1.PL_Color = XMFLOAT4(1, 0, 0, 1);
 
-	skyLight2.PL_Position = XMFLOAT3(horz2, vert2, deep);
-	skyLight2.PL_Color = XMFLOAT4(0, 1, 0, 1);
+	//skyLight2.PL_Position = XMFLOAT3(horz2, vert2, deep);
+	//skyLight2.PL_Color = XMFLOAT4(0, 1, 0, 1);
 
-	skyLight3.PL_Position = XMFLOAT3(horz3, vert3, deep);
-	skyLight3.PL_Color = XMFLOAT4(0, 0, 1, 1);
+	//skyLight3.PL_Position = XMFLOAT3(horz3, vert3, deep);
+	//skyLight3.PL_Color = XMFLOAT4(0, 0, 1, 1);
 
 
 	//create the level
@@ -464,15 +456,15 @@ void Game::Draw(float deltaTime, float totalTime)
 		&skyLight1,
 		sizeof(PointLight));
 
-	pixelShader->SetData(
-		"skyLight2",
-		&skyLight2,
-		sizeof(PointLight));
+	//pixelShader->SetData(
+	//	"skyLight2",
+	//	&skyLight2,
+	//	sizeof(PointLight));
 
-	pixelShader->SetData(
-		"skyLight3",
-		&skyLight3,
-		sizeof(PointLight));
+	//pixelShader->SetData(
+	//	"skyLight3",
+	//	&skyLight3,
+	//	sizeof(PointLight));
 
 	//pass the cameras position to the camera
 	pixelShader->SetData(

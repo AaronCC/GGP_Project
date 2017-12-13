@@ -81,8 +81,8 @@ private:
 
 	//skyplane lights
 	PointLight skyLight1;
-	PointLight skyLight2;
-	PointLight skyLight3;
+	//PointLight skyLight2;
+	//PointLight skyLight3;
 
 	ID3D11ShaderResourceView* particleSRV;
 	ID3D11ShaderResourceView* checkerSRV;
@@ -129,14 +129,5 @@ private:
 
 	Mesh* wheelMesh;
 	Entity* wheelEntity;
-
-	//Skyplane Light stuff
-	float horz1;
-	float vert1;
-	float horz2;
-	float vert2;
-	float horz3;
-	float vert3;
-	float deep;
 };
 

@@ -50,9 +50,9 @@ void Lane::Update(float deltaTime, float totalTime, float random)
 
 		respawnTimer += 1.0; // wait this long before you can spawn another enemy
 
-		aberrateTimer += 0.25; // when an enemy spawns, aberrate a little bit
-		if (aberrateTimer >= 0.5) // cap the timer
-			aberrateTimer = 0.5;
+		aberrateTimer += 0.2; // when an enemy spawns, aberrate a little bit
+		if (aberrateTimer >= 0.35) // cap the timer
+			aberrateTimer = 0.35;
 	}
 
 	//update each enemy in lane
