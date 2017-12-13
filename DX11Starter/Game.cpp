@@ -31,6 +31,8 @@ Game::Game(HINSTANCE hInstance)
 
 	skyPlaneMesh = 0;
 	skyPlaneEntity = 0;
+	wheelMesh = 0;
+	wheelEntity = 0;
 
 	horz1 = 0;
 	vert1 = 10;
@@ -73,10 +75,13 @@ Game::~Game()
 	delete level_mat;
 	delete outline_mat;
 	delete skyPlane_mat;
+	delete wheel_mat;
 
 	//Clean up the skyplane
 	delete skyPlaneMesh;
 	delete skyPlaneEntity;
+	delete wheelEntity;
+	delete wheelMesh;
 
 	//Level1->~Level();
 	delete level;
@@ -90,6 +95,7 @@ Game::~Game()
 	outlineSRV->Release();
 	sampleState->Release();
 	skyPlaneSRV->Release();
+	wheelSRV->Release();
 
 	//clean up post process stuff
 	ppSRV->Release();
@@ -217,6 +223,7 @@ void Game::LoadShaders()
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/level.png", 0, &levelSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/gold.png", 0, &outlineSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/starBG.gif", 0, &skyPlaneSRV);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/wheel.png", 0, &wheelSRV);
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -234,6 +241,7 @@ void Game::LoadShaders()
 	level_mat = new Materials(pixelShader, vertexShader, levelSRV, sampleState);
 	outline_mat = new Materials(pixelShader, vertexShader, outlineSRV, sampleState);
 	skyPlane_mat = new Materials(pixelShader, vertexShader, skyPlaneSRV, sampleState);
+	wheel_mat = new Materials(pixelShader, vertexShader, wheelSRV, sampleState);
 
 	// set up post processing resources
 	D3D11_TEXTURE2D_DESC textureDesc = {};
@@ -341,10 +349,20 @@ void Game::CreateBasicGeometry()
 		{ XMFLOAT3(-50.0f, -50.0f, +75.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,1) }  //Bot Left
 	};
 
+	Vertex vertices2[] =		//(pos)(norm)(uv)
+	{
+		{ XMFLOAT3(-75.0f, +75.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,0) }, //Top Left
+		{ XMFLOAT3(+75.0f, +75.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(1,0) }, //Top Right
+		{ XMFLOAT3(+75.0f, -75.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(1,1) }, //Bot Right
+		{ XMFLOAT3(-75.0f, -75.0f, +80.0f), XMFLOAT3(0,0,-1), XMFLOAT2(0,1) }  //Bot Left
+	};
+
 	int indices[] = { 0,1,2,2,3,0 };
 
 	skyPlaneMesh = new Mesh(vertices, 4, indices, 6, device);
-	skyPlaneEntity = new Entity(skyPlaneMesh, skyPlane_mat); ///////////////////////////////////////////////
+	skyPlaneEntity = new Entity(skyPlaneMesh, skyPlane_mat);
+	wheelMesh = new Mesh(vertices2, 4, indices, 6, device);
+	wheelEntity = new Entity(wheelMesh, wheel_mat);
 
 }
 
@@ -384,6 +402,9 @@ void Game::Update(float deltaTime, float totalTime)
 	level->Update(deltaTime, totalTime);
 	player->Update(deltaTime, totalTime);
 	skyPlaneEntity->UpdateMatrix();
+
+	wheelEntity->SetRotation(0, 0, 0.0015f);
+	wheelEntity->UpdateMatrix();
 }
 
 // --------------------------------------------------------
@@ -464,6 +485,8 @@ void Game::Draw(float deltaTime, float totalTime)
 	//draw the skyPlane
 	skyPlaneEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(),
 		skyPlaneMesh, sampleState);
+	wheelEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(),
+		wheelMesh, sampleState);
 
 	//get vector of lanes
 	std::vector<Lane*>* lanes = level->getLanes();

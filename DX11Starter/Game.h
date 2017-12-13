@@ -71,6 +71,7 @@ private:
 	Materials* level_mat; //level
 	Materials* outline_mat; //outline
 	Materials* skyPlane_mat; //skyPlane
+	Materials* wheel_mat;
 
 	DirectionalLight light;
 	DirectionalLight light2;
@@ -89,6 +90,7 @@ private:
 	ID3D11ShaderResourceView* levelSRV;
 	ID3D11ShaderResourceView* outlineSRV;
 	ID3D11ShaderResourceView* skyPlaneSRV;
+	ID3D11ShaderResourceView* wheelSRV;
 
 	ID3D11SamplerState* sampleState;
 
@@ -124,6 +126,9 @@ private:
 	//SkyPlane stuff
 	Mesh* skyPlaneMesh;
 	Entity* skyPlaneEntity;
+
+	Mesh* wheelMesh;
+	Entity* wheelEntity;
 
 	//Skyplane Light stuff
 	float horz1;
