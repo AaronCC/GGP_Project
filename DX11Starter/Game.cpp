@@ -63,9 +63,11 @@ Game::~Game()
 
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
+
 	delete vertexShader;
 	delete pixelShader;
 	delete Cam;
+	delete particle_mat;
 	delete checker_mat;
 	delete rainbow_mat;
 	delete level_mat;
@@ -80,6 +82,7 @@ Game::~Game()
 	delete level;
 	delete player;
 
+	particleSRV->Release();
 	checkerSRV->Release();
 	rainbowSRV->Release();
 	levelSRV->Release();
