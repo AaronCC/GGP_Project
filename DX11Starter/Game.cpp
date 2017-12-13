@@ -207,9 +207,9 @@ void Game::LoadShaders()
 	BloomPS = new SimplePixelShader(device, context);
 	BloomPS->LoadShaderFile(L"Bloom_PS.cso");
 
-
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/particle_texture.png", 0, &particleSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.png", 0, &checkerSRV);
-	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow.png", 0, &rainbowSRV);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow_texture.png", 0, &rainbowSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/level.png", 0, &levelSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/gold.png", 0, &outlineSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/starBG.gif", 0, &skyPlaneSRV);
@@ -224,6 +224,7 @@ void Game::LoadShaders()
 
 	device->CreateSamplerState(&samplerDesc, &sampleState);
 
+	particle_mat = new Materials(pixelShader, vertexShader, particleSRV, sampleState);
 	checker_mat = new Materials(pixelShader, vertexShader, checkerSRV, sampleState);
 	rainbow_mat = new Materials(pixelShader, vertexShader, rainbowSRV, sampleState);
 	level_mat = new Materials(pixelShader, vertexShader, levelSRV, sampleState);
@@ -689,7 +690,7 @@ void Game::CreateLevel(const UINT stage, const float variance, const float depth
 			depth,
 			maxEnemies,				// depth of level
 			checker_mat,	// enemy material
-			rainbow_mat);	// projectile material
+			particle_mat);	// projectile material
 	}
 	else if (stage == 2) {
 		const int LANES = 6; // the uv mapping does not like odd numbers
@@ -705,7 +706,7 @@ void Game::CreateLevel(const UINT stage, const float variance, const float depth
 			depth,
 			maxEnemies,		// depth of level
 			checker_mat,	// enemy material
-			rainbow_mat);	// projectile material
+			particle_mat);	// projectile material
 	}
 	else if (stage == 3) {
 		const int LANES = 8; // the uv mapping does not like odd numbers
@@ -721,7 +722,7 @@ void Game::CreateLevel(const UINT stage, const float variance, const float depth
 			depth,
 			maxEnemies,		// depth of level
 			checker_mat,	// enemy material
-			rainbow_mat);	// projectile material
+			particle_mat);	// projectile material
 	}
 	else {
 		level = nullptr;

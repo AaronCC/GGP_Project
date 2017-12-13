@@ -65,6 +65,7 @@ private:
 
 	Camera* Cam;
 
+	Materials* particle_mat; //checker
 	Materials* checker_mat; //checker
 	Materials* rainbow_mat; //rainbow
 	Materials* level_mat; //level
@@ -82,7 +83,7 @@ private:
 	PointLight skyLight2;
 	PointLight skyLight3;
 
-
+	ID3D11ShaderResourceView* particleSRV;
 	ID3D11ShaderResourceView* checkerSRV;
 	ID3D11ShaderResourceView* rainbowSRV;
 	ID3D11ShaderResourceView* levelSRV;
