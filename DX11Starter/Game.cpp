@@ -168,6 +168,7 @@ void Game::Init()
 	//	checker_mat,	// enemy material
 	//	rainbow_mat);	// projectile material
 
+	state = 0;
 	level = nullptr;
 	stage = 1;
 	score = 0;
@@ -384,6 +385,12 @@ void Game::Update(float deltaTime, float totalTime)
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
+	if (state == 0) {
+		if (GetAsyncKeyState(VK_SPACE)) {
+			state = 1;
+		}
+		return;
+	}
 
 	if (level->getLevelClear() == true) {
 		this->stage++;
@@ -415,7 +422,7 @@ void Game::Draw(float deltaTime, float totalTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
 	//const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
-	const float color[4] = { 0.8f, 0.8f, 0.8f, 0.0f }; //new grey color
+	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f }; //black
 
 	//turn off all srv's to avoid input/output clashing
 	ID3D11ShaderResourceView* nullSRVs[16] = {};
@@ -424,7 +431,6 @@ void Game::Draw(float deltaTime, float totalTime)
 	//first draw everything to ppRTV
 	//post processing - swap render target to texture2d
 	context->OMSetRenderTargets(1, &ppRTV, depthStencilView);
-
 
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
@@ -489,67 +495,89 @@ void Game::Draw(float deltaTime, float totalTime)
 	wheelEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(),
 		wheelMesh, sampleState);
 
-	//get vector of lanes
-	std::vector<Lane*>* lanes = level->getLanes();
-	float CroAbb = 0;
-	//loop through lanes
-	for each(Lane* lane in *lanes)
+	//if (state == 0)
+	//{
+	//	//draw 3 verts - the triangle that will cover the screen
+	//	context->Draw(3, 0);
+	//	//draw 3 verts - the triangle that will cover the screen
+	//	context->PSSetShaderResources(0, 16, nullSRVs);
+
+	//	spriteBatch->Begin();
+	//	font->DrawString(
+	//		spriteBatch,
+	//		L"Lane Control",
+	//		XMFLOAT2(10, 10));
+	//	spriteBatch->End();
+
+	//	float blendFactors[4] = { 1,1,1,1 };
+	//	context->OMSetBlendState(0, blendFactors, 0xFFFFFFFF);
+	//	context->RSSetState(0);
+	//	context->OMSetDepthStencilState(0, 0);
+	//}
+
+	if (state == 1)
 	{
-		CroAbb += lane->getAberration();
+		//get vector of lanes
+		std::vector<Lane*>* lanes = level->getLanes();
+		float CroAbb = 0;
+		//loop through lanes
+		for each(Lane* lane in *lanes)
+		{
+			CroAbb += lane->getAberration();
 
-		//draw each enemy
-		for each(Enemy* enemy in *lane->getEnemies())
-		{
-			Entity* enemyEntity = enemy->getEntity();
-			enemyEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), enemyEntity->mesh, sampleState);
+			//draw each enemy
+			for each(Enemy* enemy in *lane->getEnemies())
+			{
+				Entity* enemyEntity = enemy->getEntity();
+				enemyEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), enemyEntity->mesh, sampleState);
+			}
+			//draw each projectile
+			for each(Projectile* proj in *lane->getProjectiles())
+			{
+				Entity* projEntity = proj->getEntity();
+				projEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), projEntity->mesh, sampleState);
+			}
 		}
-		//draw each projectile
-		for each(Projectile* proj in *lane->getProjectiles())
-		{
-			Entity* projEntity = proj->getEntity();
-			projEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), projEntity->mesh, sampleState);
-		}
+
+		//draw the level
+		float factors[4] = { 1,1,1,1 };
+		context->OMSetBlendState(blendState, factors, 0xFFFFFFFF); // set blend state
+
+		Entity* levelEntity = level->getEntity();
+		levelEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), levelEntity->mesh, sampleState);
+
+		context->OMSetBlendState(0, factors, 0xFFFFFFFF);	//reset blendstate
+
+															//draw the player
+		Entity* playerEntity = player->getEntity();
+		playerEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntity->mesh, sampleState);
+
+		//draw the player outline
+		Entity* playerEntityOutline = player->getOutlineEntity();	//get the player entity - scaled up in player
+		context->RSSetState(invRasterState);				//set render state to new rasterizer
+		playerEntityOutline->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntityOutline->mesh, sampleState);
+		context->RSSetState(0);	//reset renderstate
+
+
+		context->PSSetShaderResources(0, 16, nullSRVs);
+
+		//post processing
+		//chromatic aberration
+		//set render target to Bloom's rtv + clear it
+		context->OMSetRenderTargets(1, &ABloom_RTV, 0);
+		context->ClearRenderTargetView(ABloom_RTV, color);
+
+		//draw with the post process shaders
+		ppVS->SetShader();
+		ppPS->SetShader();
+
+		//send in chromatic aberration value
+		ppPS->SetFloat("SplitIntensity", CroAbb);
+		ppPS->CopyAllBufferData();
+
+		ppPS->SetShaderResourceView("Pixels", ppSRV);
+		ppPS->SetSamplerState("Sampler", sampleState);
 	}
-
-	//draw the level
-	float factors[4] = { 1,1,1,1 };
-	context->OMSetBlendState(blendState, factors, 0xFFFFFFFF); // set blend state
-
-	Entity* levelEntity = level->getEntity();
-	levelEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), levelEntity->mesh, sampleState);
-
-	context->OMSetBlendState(0, factors, 0xFFFFFFFF);	//reset blendstate
-
-	//draw the player
-	Entity* playerEntity = player->getEntity();
-	playerEntity->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntity->mesh, sampleState);
-
-	//draw the player outline
-	Entity* playerEntityOutline = player->getOutlineEntity();	//get the player entity - scaled up in player
-	context->RSSetState(invRasterState);				//set render state to new rasterizer
-	playerEntityOutline->Draw(context, Cam->GetViewMat(), Cam->GetProjectionMatrix(), playerEntityOutline->mesh, sampleState);
-	context->RSSetState(0);	//reset renderstate
-
-
-	context->PSSetShaderResources(0, 16, nullSRVs);
-
-	//post processing
-	//chromatic aberration
-	//set render target to Bloom's rtv + clear it
-	context->OMSetRenderTargets(1, &ABloom_RTV, 0);
-	context->ClearRenderTargetView(ABloom_RTV, color);
-
-	//draw with the post process shaders
-	ppVS->SetShader();
-	ppPS->SetShader();
-
-	//send in chromatic aberration value
-	ppPS->SetFloat("SplitIntensity", CroAbb);
-	ppPS->CopyAllBufferData();
-
-	ppPS->SetShaderResourceView("Pixels", ppSRV);
-	ppPS->SetSamplerState("Sampler", sampleState);
-
 
 	//disable vertex and index buffer
 	ID3D11Buffer* nullBuffer = 0;
@@ -686,16 +714,31 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	context->PSSetShaderResources(0, 16, nullSRVs);
 
-	wchar_t text[256];
-	swprintf_s(text, L"Score: %d", score);
-	const wchar_t * t = text;
+	if (state == 1)
+	{
+		wchar_t text[256];
+		swprintf_s(text, L"Score: %d", score);
+		const wchar_t * t = text;
 
-	spriteBatch->Begin();
-	font->DrawString(
-		spriteBatch,
-		t,
-		XMFLOAT2(600, 10));
-	spriteBatch->End();
+		spriteBatch->Begin();
+		font->DrawString(
+			spriteBatch,
+			t,
+			XMFLOAT2(600, 10));
+		spriteBatch->End();
+	}
+	else {
+		spriteBatch->Begin();
+		font->DrawString(
+			spriteBatch,
+			L"Lane Control",
+			XMFLOAT2(300, 300));
+		font->DrawString(
+			spriteBatch,
+			L"Press Space To Start",
+			XMFLOAT2(250, 400));
+		spriteBatch->End();
+	}
 
 	float blendFactors[4] = { 1,1,1,1 };
 	context->OMSetBlendState(0, blendFactors, 0xFFFFFFFF);

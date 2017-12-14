@@ -40,6 +40,7 @@ public:
 	void OnMouseWheel(float wheelDelta,   int x, int y);
 private:
 
+	int state; // 0 menu, 1 game
 	UINT stage;
 	int score;
 
