@@ -731,7 +731,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		spriteBatch->Begin();
 		font->DrawString(
 			spriteBatch,
-			L"Lane Control",
+			L"Shooty Tube",
 			XMFLOAT2(300, 300));
 		font->DrawString(
 			spriteBatch,
