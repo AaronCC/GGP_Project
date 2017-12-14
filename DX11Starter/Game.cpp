@@ -212,7 +212,7 @@ void Game::LoadShaders()
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/particle_texture.png", 0, &particleSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/checker.png", 0, &checkerSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rainbow_texture.png", 0, &rainbowSRV);
-	CreateWICTextureFromFile(device, context, L"Assets/Textures/level.png", 0, &levelSRV);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/levelv2.png", 0, &levelSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/gold.png", 0, &outlineSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/starBG.gif", 0, &skyPlaneSRV);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/wheel.png", 0, &wheelSRV);
