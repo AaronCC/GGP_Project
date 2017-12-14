@@ -25,6 +25,7 @@ public:
 	std::vector<Projectile*>* getProjectiles() { return &projs; }
 
 	int maxEnemies;
+	int scoreDiff;
 	int spawnedEnemies;
 	int deadEnemies;
 	bool clear;

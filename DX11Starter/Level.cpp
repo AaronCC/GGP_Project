@@ -138,6 +138,7 @@ void Level::Update(float deltaTime, float totalTime)
 	for each(Lane* lane in lanes)
 	{
 		lane->Update(deltaTime, totalTime, std::rand() % 3500);
+
 	}
 }
 
@@ -152,4 +153,16 @@ bool Level::IsLevelClear()
 	}
 	//if all lanes are clear, the level is clear
 	return true;
+}
+
+UINT Level::getScoreDiff()
+{
+	UINT x = 0;
+	for each(Lane* lane in lanes)
+	{
+		//count up lanes' score differences and set to 0
+		x += lane->scoreDiff;
+		lane->scoreDiff = 0;
+	}
+	return x;
 }

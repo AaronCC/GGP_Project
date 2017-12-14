@@ -107,6 +107,9 @@ Game::~Game()
 
 	//clean up blend
 	blendState->Release();
+
+	delete spriteBatch;
+	delete font;
 }
 
 // --------------------------------------------------------
@@ -167,10 +170,15 @@ void Game::Init()
 
 	level = nullptr;
 	stage = 1;
+	score = 0;
 	CreateLevel(this->stage, 8.f, 75.f, 8.f, 4);
 
 	// Create Player
 	this->player = new Player(level, checker_mat, outline_mat, device);
+
+	//Font loading
+	spriteBatch = new SpriteBatch(context);
+	font = new SpriteFont(device, L"Assets/Fonts/Arial.spritefont");
 
 	//create backdrop
 	//backDrop = new Entity();
@@ -384,6 +392,7 @@ void Game::Update(float deltaTime, float totalTime)
 		//set the player's position to 0
 		player->setPos(0);
 	}
+	score += level->getScoreDiff();
 
 	//timer for some of the transformations
 	float sinTime = (sin(totalTime * 10.0f) + 2.0f) / 10.0f;
@@ -676,6 +685,22 @@ void Game::Draw(float deltaTime, float totalTime)
 
 
 	context->PSSetShaderResources(0, 16, nullSRVs);
+
+	wchar_t text[256];
+	swprintf_s(text, L"Score: %d", score);
+	const wchar_t * t = text;
+
+	spriteBatch->Begin();
+	font->DrawString(
+		spriteBatch,
+		t,
+		XMFLOAT2(600, 10));
+	spriteBatch->End();
+
+	float blendFactors[4] = { 1,1,1,1 };
+	context->OMSetBlendState(0, blendFactors, 0xFFFFFFFF);
+	context->RSSetState(0);
+	context->OMSetDepthStencilState(0, 0);
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it

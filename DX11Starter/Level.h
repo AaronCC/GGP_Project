@@ -23,6 +23,7 @@ public:
 	
 	bool getLevelClear() { return levelClear; }
 	bool IsLevelClear();
+	UINT getScoreDiff();
 
 	void Update(float deltaTime, float totalTime);
 

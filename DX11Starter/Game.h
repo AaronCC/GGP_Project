@@ -12,6 +12,9 @@
 #include "WICTextureLoader.h"
 #include "Level.h"
 #include "Player.h"
+#include "SpriteBatch.h"
+#include "SpriteFont.h"
+#include <stdio.h>
 
 class Game 
 	: public DXCore
@@ -38,6 +41,7 @@ public:
 private:
 
 	UINT stage;
+	int score;
 
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void LoadShaders(); 
@@ -56,6 +60,10 @@ private:
 	DirectX::XMFLOAT4X4 worldMatrix;
 	DirectX::XMFLOAT4X4 viewMatrix;
 	DirectX::XMFLOAT4X4 projectionMatrix;
+
+	// Font Stuff
+	DirectX::SpriteBatch* spriteBatch;
+	DirectX::SpriteFont* font;
 
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.

@@ -12,6 +12,7 @@ Lane::Lane(XMFLOAT2 pos, float depth, int maxEnemies, Materials * enemyMat, Mate
 
 	this->maxEnemies = maxEnemies;
 	this->spawnedEnemies = 0;
+	this->scoreDiff = 0;
 	this->deadEnemies = 0;
 	this->clear = false;
 }
@@ -129,6 +130,7 @@ void Lane::Update(float deltaTime, float totalTime, float random)
 			delete proj;
 			delete enemy;
 			deadEnemies++;
+			scoreDiff++;
 		}
 	}
 
