@@ -48,14 +48,14 @@ float4 main(VertexToPixel input) : SV_TARGET
 		case 1:
 			totalColor = float4(0, 0, 0, 0);
 			numSamples = 0;
-			for (int x = -BlurAmount; x <= BlurAmount; x++)
+			for (int x = -BlurAmount + 1; x < BlurAmount; x++) //this new for loop skips the two extremes, because they will be always be 0%
 			{
 				//starting at left, moving right, sample pixels
-				float2 uv = input.uv + float2(x * PixelWidth, 0);
-				totalColor += Pixels.Sample(Sampler, uv);
+				float2 uv = input.uv + float2(x * PixelWidth, 0); // get the new x and same y
+				totalColor += Pixels.Sample(Sampler, uv) * (1 - abs(x / BlurAmount)); // make the color fall off as it goes away from the center
 
 				//increment number of samples
-				numSamples += 1;
+				numSamples ++;
 			}
 			return totalColor / numSamples;
 			break;
@@ -64,14 +64,14 @@ float4 main(VertexToPixel input) : SV_TARGET
 		case 2:
 			totalColor = float4(0, 0, 0, 0);
 			numSamples = 0;
-			for (int y = -BlurAmount; y <= BlurAmount; y++)
+			for (int y = -BlurAmount + 1; y < BlurAmount; y++)
 			{
 				//starting at left, moving right, sample pixels
 				float2 uv = input.uv + float2(0, y * PixelHeight);
-				totalColor += Pixels.Sample(Sampler, uv);
+				totalColor += Pixels.Sample(Sampler, uv) * (1 - abs(y / BlurAmount));
 
 				//increment number of samples
-				numSamples += 1;
+				numSamples ++;
 			}
 			return totalColor / numSamples;
 			break;

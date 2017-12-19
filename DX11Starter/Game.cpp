@@ -594,7 +594,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 
 	//now bloom
-	int BlurAmount = 12;
+	int BlurAmount = 10;
 
 	//first step = extract bright pixels from ABloomRTV into BBloomRTV
 	//set render target to BBloomRTV + clear it
